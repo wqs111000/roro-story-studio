@@ -1,0 +1,46 @@
+service/.runtime/
+/.runtime/
+service/__pycache__/
+*.py[cod]
+/.tmp/
+
+# Private family inputs and generated story packages
+/inbox/
+/drafts/
+/approved/
+/exports/
+/output/
+/tmp/
+/work/
+
+# Local family profiles; publish only sanitized examples
+/profile/*
+!/profile/README.md
+!/profile/*.example.md
+
+# Local character registry and runtime catalogs
+/universe/character-registry.md
+/service/data/characters.json
+/service/data/story-production-times.json
+/service/assets/characters/*.png
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Generated media need an explicit release/LFS policy if published later
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.pdf
+
+# Documentation assets are opt-in: only the two public README examples are tracked.
+/docs/assets/*
+!/docs/assets/story-production-pipeline.png
+!/docs/assets/storybook-shelf.png

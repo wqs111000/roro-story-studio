@@ -1,0 +1,19 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-wqy-zenhei \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements-service.txt ./
+RUN pip install --no-cache-dir -r requirements-service.txt
+
+COPY service ./service
+COPY scripts ./scripts
+
+EXPOSE 8877
+ENTRYPOINT ["python", "/app/service/story_server.py"]

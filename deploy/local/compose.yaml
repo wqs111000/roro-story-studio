@@ -1,0 +1,36 @@
+services:
+  story-service:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: roro-story-studio:local
+    restart: unless-stopped
+    ports:
+      - "${RORO_LISTEN_ADDRESS:-127.0.0.1}:${RORO_PORT:-8877}:8877"
+    volumes:
+      - ../../approved:/data/approved
+      - ../../drafts:/data/drafts
+      - ../../inbox:/data/inbox
+      - ../../exports:/data/exports
+      - ../../service/.runtime:/runtime
+      - ../../service/data:/app/service/data:ro
+      - ../../service/assets/characters:/app/service/assets/characters:ro
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8877"
+      - --directory
+      - /data/approved
+      - --review-auth-mode
+      - development
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json,urllib.request; d=json.load(urllib.request.urlopen('http://127.0.0.1:8877/health', timeout=2)); assert d['status']=='ok' and d['review_mode']=='development'"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

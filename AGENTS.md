@@ -1,0 +1,17 @@
+# Roro Story Studio guidance
+
+For requests to create, review, revise, illustrate, narrate, approve, or export a Youyou and Roro story, read and follow `skills/youyou-roro-story/SKILL.md` before acting.
+
+Keep drafts under `drafts/`. During the current development phase, a deliberate “通过并上架” action in the local workbench may publish to the local `approved/` shelf without parent PIN verification. Do not export to an external Roro content library without a separate explicit request.
+
+Use `http://127.0.0.1:8877/workbench` as the review surface. The default development mode does not require parent PIN verification. Complete intermediate text, storyboard, illustration, audio, and Codex visual-QA steps autonomously. Only candidates with an explicit manifest, current package digest, and passing `ai-review.json` may be acted on. “通过并上架” publishes the manifest-listed assets as an immutable local release and updates the shelf; “退回修改” keeps the story in `drafts/` for autonomous revision. Preserve the action actor and verification mode so protected parent review can be restored later.
+
+Create master page illustrations as full-bleed scene art. Do not bake blank caption bands, pale bottom strips, frames, banners, or text placeholders into the image. Keep story text in the player/PDF layout layer. Existing approved assets must not be overwritten during visual remediation; create revised candidates in `drafts/` and wait for scope-matched parent approval.
+
+Converge image and text together instead of treating every small mismatch as an image failure. If an image is visually sound and preserves character identity, safety, plot causality, the story's learning goal, and cross-page continuity, prefer a small child-facing text adjustment when the mismatch concerns only a nonessential action, prop, count, or environmental detail. Propagate that adjustment through every text and narration source, then regenerate only the affected page audio. Never adapt text around malformed anatomy, a wrong character, an unsafe action, a bottom caption strip, random text, or a broken scale/scene anchor.
+
+Keep visual iteration bounded. Use one contact-sheet review for the whole book, inspect full-size files only for flagged pages, and do not re-analyze unchanged images. Default to one initial generation plus one targeted repair per page. Attempt a second repair only when the first clearly improved a specific blocking defect; otherwise re-plan the composition or stop that page instead of repeatedly generating near-duplicates. Record `accept`, `text-adapt`, or `repair` for each page in the visual review.
+
+Use the latest approved entries in `universe/character-registry.md` and the web character atlas as the authoritative visual references. Roro's default picture-book form is the approved Warm Sun Form; another approved form may be selected when the story's setting or emotional tone gives a clear reason, and that choice must be recorded in the story's visual review.
+
+Lock character-relative scale per story. Choose a representative accepted page as that story's scale anchor, then keep the same characters' relative sizes consistent on later pages at comparable depth and posture. Canonical heights are starting references, not a rigid cross-story pixel ratio: different stories may use moderately different relative scale for composition or stylization, provided identity remains clear and the chosen relationship is documented. Do not reject a page merely because its scale differs from another story.

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "visibility": "public_example",
+  "characters": [
+    {
+      "character_id": "roro",
+      "name": "Roro",
+      "type": "机器人伙伴",
+      "status": "示例角色",
+      "state_group": "approved",
+      "summary": "温和观察并提供清楚提示的机器人伙伴。",
+      "appearance": "使用项目自己的公开角色设定，或保持无图片示例。",
+      "strength": "观察、提问和安全提醒。",
+      "image_url": ""
+    }
+  ]
+}

@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/app-icon.svg">
+  <link rel="apple-touch-icon" href="/app-icon.png">
+  <meta name="theme-color" content="#152765">
+  <title>有声绘本 · 佑佑和 Roro</title>
+  <style>
+    :root {
+      color-scheme: light; font-family: ui-rounded,"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+      --ink:#2f392f; --green:#39624f; --green-deep:#274a3b; --paper:#fbf7ed; --line:rgba(57,98,79,.16);
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; min-height:100dvh; display:grid; place-items:start center; color:var(--ink); background:radial-gradient(circle at 50% 0,#38584c,#1e332c 68%); }
+    main { width:min(1120px,100%); min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; background:#f7f1e4; box-shadow:0 0 60px rgba(9,25,20,.28); }
+    .stage { position:relative; height:min(75vw,calc(100vh - 143px),840px); height:min(75vw,calc(100svh - 143px),840px); height:min(75vw,calc(100dvh - 143px),840px); overflow:hidden; background:#1e332c; }
+    .stage img { width:100%; height:100%; display:block; object-fit:contain; object-position:center; transition:opacity .18s; }
+    .back { position:absolute; z-index:2; top:max(16px,env(safe-area-inset-top)); left:18px; min-height:44px; display:inline-flex; align-items:center; padding:9px 15px; border-radius:999px; background:rgba(251,247,237,.94); color:var(--green); font-weight:800; text-decoration:none; box-shadow:0 4px 14px rgba(35,60,53,.16); backdrop-filter:blur(10px); }
+    .page-badge { position:absolute; top:max(16px,env(safe-area-inset-top)); right:18px; min-width:44px; height:44px; padding:0 12px; display:grid; place-items:center; border-radius:999px; background:rgba(53,99,77,.92); color:#fff; font-weight:800; }
+    .caption { padding:18px 7% 17px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#fffdf7,#fbf7ed); font-size:clamp(17px,2vw,24px); line-height:1.62; }
+    .caption strong { color:var(--green); }
+    .caption p { margin:0; }
+    .caption .dialogue { margin-top:6px; font-size:1em; color:#50645b; }
+    .caption .interaction { margin-top:7px; padding-left:12px; border-left:3px solid #e3b76e; color:#765d36; font-size:1em; }
+    .loading { position:absolute; inset:0; display:grid; place-items:center; padding:24px; color:#607168; text-align:center; }
+    .loading[hidden] { display:none; }
+    .page-nav { display:flex; justify-content:center; gap:8px; padding:14px 18px 0; }
+    .page-dot { width:10px; height:10px; min-height:0; padding:0; border-radius:50%; background:#c8d2cb; box-shadow:none; }
+    .page-dot.active { width:28px; border-radius:999px; background:var(--green); }
+    .controls { padding:14px 22px max(20px,env(safe-area-inset-bottom)); display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; }
+    button { min-height:48px; border:0; border-radius:999px; padding:11px 20px; background:#4b705d; color:#fff; font:inherit; font-size:16px; font-weight:800; cursor:pointer; transition:transform .18s,background .18s; }
+    button:hover:not(:disabled) { background:var(--green-deep); transform:translateY(-1px); }
+    button:disabled { opacity:.4; cursor:default; }
+    .playback { min-width:0; }
+    .audio-player { display:grid; grid-template-columns:auto minmax(0,1fr); gap:12px; align-items:center; margin:0 0 12px; padding:11px 13px; border:1px solid rgba(57,98,79,.14); border-radius:20px; background:linear-gradient(145deg,#fffdf7,#f2ead9); box-shadow:0 8px 20px rgba(45,74,59,.08); }
+    .audio-toggle { width:46px; height:46px; min-height:46px; display:grid; place-items:center; padding:0; border:0; border-radius:50%; background:var(--green); color:#fff; font-size:18px; box-shadow:0 5px 12px rgba(39,74,59,.2); }
+    .audio-toggle:hover:not(:disabled) { background:var(--green-deep); transform:translateY(-1px); }
+    .audio-track { min-width:0; }
+    .audio-range { width:100%; height:9px; display:block; margin:0; appearance:none; -webkit-appearance:none; border-radius:999px; outline:0; cursor:pointer; background:linear-gradient(to right,var(--green) 0 var(--progress),#d6ded6 var(--progress) 100%); --progress:0%; }
+    .audio-range::-webkit-slider-thumb { width:21px; height:21px; appearance:none; -webkit-appearance:none; border:3px solid #fff; border-radius:50%; background:var(--green); box-shadow:0 2px 8px rgba(39,74,59,.28); }
+    .audio-range::-moz-range-thumb { width:15px; height:15px; border:3px solid #fff; border-radius:50%; background:var(--green); box-shadow:0 2px 8px rgba(39,74,59,.28); }
+    .audio-range:disabled { opacity:.4; cursor:not-allowed; }
+    .audio-times { display:flex; justify-content:space-between; margin-top:5px; color:#718077; font-size:11px; font-variant-numeric:tabular-nums; }
+    .voice-panel { margin:0 0 10px; padding:10px; border:1px solid rgba(57,98,79,.12); border-radius:20px; background:linear-gradient(145deg,rgba(255,253,247,.96),rgba(246,239,223,.9)); box-shadow:0 6px 18px rgba(45,74,59,.07); }
+    .voice-panel[hidden] { display:none; }
+    .voice-panel-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 4px 8px; }
+    .voice-panel-head strong { color:var(--green-deep); font-size:13px; letter-spacing:.02em; }
+    .voice-panel-head span { color:#7a867d; font-size:11px; }
+    .voice-list { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; }
+    .voice-card { min-width:0; min-height:58px; display:grid; grid-template-columns:34px minmax(0,1fr); gap:8px; align-items:center; padding:8px 9px; border:1px solid rgba(57,98,79,.13); border-radius:15px; color:#4f6258; background:rgba(255,255,255,.72); box-shadow:0 1px 0 rgba(255,255,255,.8) inset; text-align:left; }
+    .voice-card:hover:not(:disabled) { color:var(--green-deep); background:#fffdf7; border-color:rgba(57,98,79,.28); transform:translateY(-1px); }
+    .voice-card[aria-checked="true"] { color:var(--green-deep); border-color:#d6a84e; background:linear-gradient(145deg,#fff7da,#ffedb4); box-shadow:0 5px 13px rgba(175,125,37,.15),0 1px 0 rgba(255,255,255,.85) inset; }
+    .voice-orb { width:34px; height:34px; display:grid; place-items:center; border-radius:50%; color:#fff; background:#779486; font-size:13px; font-weight:900; box-shadow:0 3px 8px rgba(46,73,61,.18); }
+    .voice-card[data-voice="roro-01"] .voice-orb { background:#d89536; }
+    .voice-card[data-voice="girl"] .voice-orb { background:#d77d8f; }
+    .voice-card[data-voice="man"] .voice-orb { background:#587b91; }
+    .voice-card[data-voice="wqs"] .voice-orb { background:#8c73ac; }
+    .voice-card[aria-checked="true"] .voice-orb { box-shadow:0 0 0 3px rgba(255,255,255,.72),0 4px 9px rgba(132,91,28,.2); }
+    .voice-copy { min-width:0; display:block; }
+    .voice-copy b,.voice-copy small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .voice-copy b { font-size:12px; }
+    .voice-copy small { margin-top:2px; color:#7d887f; font-size:9px; font-weight:650; }
+    .audio-native { position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
+    .hint { grid-column:1/-1; margin:0; text-align:center; color:#617065; font-size:14px; }
+    .share-banner { padding:9px 16px; color:#31594a; background:#e8f1eb; border-bottom:1px solid rgba(57,98,79,.14); text-align:center; font-size:13px; font-weight:800; }
+    .share-banner[hidden] { display:none; }
+    :is(a,button,audio,select):focus-visible { outline:3px solid #f4b95e; outline-offset:3px; }
+    @media (max-width:640px) {
+      main { min-height:100svh; min-height:100dvh; }
+      .stage { height:auto; }
+      .stage img { height:auto; aspect-ratio:4/3; object-fit:contain; }
+      .caption { min-height:142px; padding:17px 20px 18px; font-size:17px; }
+      .back { top:max(10px,env(safe-area-inset-top)); left:10px; }
+      .page-badge { top:max(10px,env(safe-area-inset-top)); right:10px; }
+      .page-nav { padding-top:12px; }
+      .controls { position:sticky; bottom:0; z-index:3; grid-template-columns:1fr 1fr; padding:12px 12px max(14px,env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:rgba(247,241,228,.94); backdrop-filter:blur(12px); }
+      .playback { grid-column:1/-1; grid-row:1; }
+      .audio-player { margin-bottom:10px; padding:10px 11px; border-radius:17px; }
+      .audio-toggle { width:44px; height:44px; min-height:44px; }
+      .audio-times { font-size:10px; }
+      .voice-panel { margin-bottom:9px; padding:9px 0 9px 10px; border-radius:17px; }
+      .voice-panel-head { margin:0 11px 8px 2px; }
+      .voice-list { display:flex; gap:8px; overflow-x:auto; padding:1px 10px 5px 1px; scroll-snap-type:x proximity; scrollbar-width:none; }
+      .voice-list::-webkit-scrollbar { display:none; }
+      .voice-card { flex:0 0 122px; min-height:60px; scroll-snap-align:start; padding:8px; }
+      .hint { font-size:13px; line-height:1.45; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none!important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div id="share-banner" class="share-banner" hidden>家庭分享 · 只读绘本</div>
+    <section class="stage">
+      <a id="back-link" class="back" href="/">← 返回书架</a>
+      <img id="picture" alt="绘本页面">
+      <div id="badge" class="page-badge">封面</div>
+      <div id="loading" class="loading">正在准备画面和朗读……</div>
+    </section>
+    <div id="caption" class="caption" aria-live="polite"><p><strong>正在打开绘本……</strong></p></div>
+    <nav id="page-nav" class="page-nav" aria-label="绘本页码"></nav>
+    <section class="controls">
+      <button id="prev" type="button" disabled>上一页</button>
+      <div class="playback">
+        <div class="audio-player" role="group" aria-label="旁白播放控制">
+          <button id="audio-toggle" class="audio-toggle" type="button" disabled aria-label="播放旁白">▶</button>
+          <div class="audio-track">
+            <input id="audio-seek" class="audio-range" type="range" min="0" max="0" step="0.1" value="0" disabled aria-label="旁白播放进度">
+            <div class="audio-times"><span id="audio-current">0:00</span><span id="audio-total">0:00</span></div>
+          </div>
+        </div>
+        <audio id="audio" class="audio-native" preload="auto" aria-hidden="true"></audio>
+        <section id="voice-picker" class="voice-panel" hidden aria-labelledby="voice-title">
+          <div class="voice-panel-head"><strong id="voice-title">选择旁白声音</strong><span>点击即可切换</span></div>
+          <div id="voice-list" class="voice-list" role="radiogroup" aria-label="旁白声音"></div>
+        </section>
+      </div>
+      <button id="next" type="button" disabled>下一页</button>
+      <p id="hint" class="hint">页面会跟随朗读自动切换，也可以手动翻页。</p>
+    </section>
+  </main>
+  <script>
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    const sharedStory = pathParts[0] === 'share';
+    const storyId = decodeURIComponent(pathParts[pathParts.length - 1] || '');
+    const shareToken = sharedStory ? storyId : '';
+    const candidatePreview = location.pathname.startsWith('/studio-preview/');
+    const workbenchView = new URLSearchParams(location.search).get('from') === 'workbench'
+      ? new URLSearchParams(location.search).get('view')
+      : '';
+    const workbenchReturn = ['candidates', 'working', 'review', 'published'].includes(workbenchView)
+      ? { backHref:`/workbench#${workbenchView}`, backLabel:'← 返回制作工作台' }
+      : null;
+    // Preview and published stories intentionally share every player control
+    // and state transition. Only the content source and return target differ.
+    const playerContext = sharedStory
+      ? { storyApi:`/api/shares/${encodeURIComponent(shareToken)}`, backHref:'/', backLabel:'← 返回书架' }
+      : candidatePreview
+      ? { storyApi:`/api/studio/preview/${encodeURIComponent(storyId)}`, backHref:'/workbench', backLabel:'← 返回工作台' }
+      : { storyApi:`/api/stories/${encodeURIComponent(storyId)}`, ...(workbenchReturn || { backHref:'/', backLabel:'← 返回书架' }) };
+    const storyApi = playerContext.storyApi;
+    const autoplayRequested = new URLSearchParams(location.search).get('autoplay') === '1';
+    const backLink = document.querySelector('#back-link');
+    backLink.href = playerContext.backHref;
+    backLink.textContent = playerContext.backLabel;
+    const audio = document.querySelector('#audio');
+    const audioToggle = document.querySelector('#audio-toggle');
+    const audioSeek = document.querySelector('#audio-seek');
+    const audioCurrent = document.querySelector('#audio-current');
+    const audioTotal = document.querySelector('#audio-total');
+    const voicePicker = document.querySelector('#voice-picker');
+    const voiceList = document.querySelector('#voice-list');
+    const picture = document.querySelector('#picture');
+    const badge = document.querySelector('#badge');
+    const caption = document.querySelector('#caption');
+    const loading = document.querySelector('#loading');
+    const pageNav = document.querySelector('#page-nav');
+    const prev = document.querySelector('#prev');
+    const next = document.querySelector('#next');
+    const hint = document.querySelector('#hint');
+    if (sharedStory) document.querySelector('#share-banner').hidden = false;
+    let slides = [];
+    let index = 0;
+    let syncFrame = 0;
+    let audioOptions = [];
+    let primaryDuration = 0;
+    let manualBrowse = false;
+    let audioSeeking = false;
+    let followHint = '页面会跟随朗读自动切换，也可以手动翻页。';
+    const PAGE_LEAD_SECONDS = 0.08;
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+    const formatTime = seconds => { const total = Math.max(0, Math.floor(Number(seconds) || 0)); return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`; };
+
+    function updateAudioControls() {
+      const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+      const current = Math.min(Math.max(audio.currentTime || 0, 0), duration || 0);
+      const progress = duration ? (current / duration) * 100 : 0;
+      audioSeek.max = String(duration);
+      audioSeek.value = String(current);
+      audioSeek.style.setProperty('--progress', `${progress}%`);
+      audioSeek.disabled = !audio.src || duration <= 0;
+      audioToggle.disabled = !audio.src;
+      audioToggle.textContent = audio.paused ? '▶' : 'Ⅱ';
+      audioToggle.setAttribute('aria-label', audio.paused ? '播放旁白' : '暂停旁白');
+      audioCurrent.textContent = formatTime(current);
+      audioTotal.textContent = formatTime(duration);
+    }
+
+    function addParagraph(text, className = '') {
+      if (!text) return;
+      const paragraph = document.createElement('p');
+      paragraph.className = className;
+      paragraph.textContent = text;
+      caption.appendChild(paragraph);
+    }
+
+    function renderCaption(slide) {
+      caption.replaceChildren();
+      if (slide.cover) {
+        const paragraph = document.createElement('p');
+        const title = document.createElement('strong');
+        title.textContent = `《${slide.title}》`;
+        paragraph.append(title, document.createElement('br'), document.createTextNode('佑佑与 Roro 原创有声绘本。'));
+        caption.appendChild(paragraph);
+        return;
+      }
+      addParagraph(slide.narration || slide.scene || `第 ${slide.page} 页`);
+      if (Array.isArray(slide.dialogue) && slide.dialogue.length) {
+        addParagraph(slide.dialogue.map(line => `${line.speaker}：${line.text}`).join('　'), 'dialogue');
+      }
+      addParagraph(slide.interaction, 'interaction');
+    }
+
+    function render(nextIndex, mode = 'sync') {
+      if (!slides.length) return;
+      index = Math.max(0, Math.min(slides.length - 1, nextIndex));
+      const slide = slides[index];
+      picture.src = slide.image;
+      picture.alt = slide.cover ? `《${slide.title}》封面` : `《${slides[0].title}》第 ${slide.page} 页`;
+      badge.textContent = slide.cover ? '封面' : slide.page;
+      renderCaption(slide);
+      prev.disabled = index === 0;
+      next.disabled = index === slides.length - 1;
+      pageNav.querySelectorAll('.page-dot').forEach((dot, dotIndex) => {
+        dot.classList.toggle('active', dotIndex === index);
+        dot.setAttribute('aria-current', dotIndex === index ? 'page' : 'false');
+      });
+      if (mode === 'manual') {
+        manualBrowse = true;
+        hint.textContent = '手动翻页中，旁白播放和进度保持不变；拖动音频进度后恢复自动跟随。';
+      }
+    }
+
+    function buildPlayer(story) {
+      document.title = `${story.title} - 有声绘本`;
+      slides = [
+        { cover:true, title:story.title, image:story.cover_url, start:0, baseStart:0 },
+        ...(story.pages || []).filter(page => page.image_url).map(page => ({ ...page, image:page.image_url, start:Number(page.start_seconds) || 0, end:null, baseStart:Number(page.start_seconds) || 0 }))
+      ];
+      audioOptions = Array.isArray(story.audio_options) && story.audio_options.length
+        ? story.audio_options
+        : [{ voice:'default', label:'默认声音', url:story.audio_url, primary:true, duration_seconds:story.duration_seconds }];
+      primaryDuration = Number(story.duration_seconds) || Number(audioOptions[0].duration_seconds) || 0;
+      voiceList.innerHTML = audioOptions.map((option, optionIndex) => {
+        const mark = option.mark || (option.label || '声').slice(0,1);
+        return `<button class="voice-card" type="button" role="radio" aria-checked="${optionIndex === 0}" data-index="${optionIndex}" data-voice="${escapeHtml(option.voice)}" aria-label="${escapeHtml(option.label)}"><span class="voice-orb" aria-hidden="true">${escapeHtml(mark)}</span><span class="voice-copy"><b>${escapeHtml(option.label)}</b></span></button>`;
+      }).join('');
+      voicePicker.hidden = audioOptions.length < 2;
+      selectVoice(0, false);
+      slides.forEach(slide => {
+        const preload = new Image();
+        preload.src = slide.image;
+      });
+      pageNav.innerHTML = slides.map((slide, slideIndex) =>
+        `<button class="page-dot" type="button" data-index="${slideIndex}" aria-label="${slideIndex === 0 ? '封面' : `第 ${slide.page} 页`}"></button>`
+      ).join('');
+      loading.hidden = true;
+      render(0, 'sync');
+      updateAudioControls();
+      if (autoplayRequested) {
+        const attempt = audio.play();
+        if (attempt?.catch) attempt.catch(() => { hint.textContent = '点击播放按钮开始朗读。'; });
+      }
+    }
+
+    function selectVoice(optionIndex, preservePosition = true) {
+      const option = audioOptions[optionIndex];
+      if (!option) return;
+      const wasPlaying = preservePosition && !audio.paused;
+      const currentSlide = slides[index];
+      const currentStart = Number(currentSlide?.start) || 0;
+      const currentEnd = Number(currentSlide?.end) || Number(audio.duration) || currentStart;
+      const pageProgress = preservePosition && currentEnd > currentStart
+        ? Math.max(0, Math.min(1, (audio.currentTime - currentStart) / (currentEnd - currentStart)))
+        : 0;
+      const selectedDuration = Number(option.duration_seconds) || primaryDuration;
+      const exactTimeline = new Map((option.page_timeline || []).map(item => [Number(item.page), item]));
+      const timingScale = primaryDuration > 0 && selectedDuration > 0 ? selectedDuration / primaryDuration : 1;
+      slides.forEach(slide => {
+        if (slide.cover) {
+          slide.start = 0;
+          slide.end = Number(exactTimeline.get(1)?.start_seconds) || 0;
+          return;
+        }
+        const timing = exactTimeline.get(Number(slide.page));
+        slide.start = timing ? Number(timing.start_seconds) : slide.baseStart * timingScale;
+        slide.end = timing ? Number(timing.end_seconds) : null;
+      });
+      audio.src = option.url;
+      audio.load();
+      updateAudioControls();
+      voiceList.querySelectorAll('.voice-card').forEach((card, index) => card.setAttribute('aria-checked', String(index === optionIndex)));
+      followHint = `当前声音：${option.label}。${option.timing_mode==='voice_exact'?'已按本声音的逐页时间轴同步翻页。':'页面会跟随朗读自动切换。'}也可以手动翻页。`;
+      if (!manualBrowse) hint.textContent = followHint;
+      if (preservePosition) {
+        audio.addEventListener('loadedmetadata', () => {
+          const targetSlide = slides[index];
+          const targetStart = Number(targetSlide?.start) || 0;
+          const targetEnd = Number(targetSlide?.end) || Number(audio.duration) || targetStart;
+          if (Number.isFinite(audio.duration) && audio.duration > 0) {
+            audio.currentTime = Math.min(targetStart + Math.max(0, targetEnd - targetStart) * pageProgress, Math.max(0, audio.duration - .05));
+          }
+          manualBrowse = false;
+          hint.textContent = followHint;
+          syncToAudio(true);
+          if (wasPlaying) audio.play().catch(() => {});
+        }, { once:true });
+      }
+    }
+
+    function syncToAudio(force = false) {
+      if ((manualBrowse && !force) || audioSeeking) return;
+      const syncTime = audio.currentTime + PAGE_LEAD_SECONDS;
+      let nextIndex = 0;
+      slides.forEach((slide, slideIndex) => { if (syncTime >= slide.start) nextIndex = slideIndex; });
+      if (nextIndex !== index) render(nextIndex, 'sync');
+    }
+
+    function startSyncLoop() {
+      cancelAnimationFrame(syncFrame);
+      const tick = () => {
+        syncToAudio();
+        if (!audio.paused && !audio.ended) syncFrame = requestAnimationFrame(tick);
+      };
+      syncFrame = requestAnimationFrame(tick);
+    }
+
+    pageNav.addEventListener('click', event => {
+      const dot = event.target.closest('.page-dot');
+      if (dot) render(Number(dot.dataset.index), 'manual');
+    });
+    audio.addEventListener('loadedmetadata', updateAudioControls);
+    audio.addEventListener('durationchange', updateAudioControls);
+    audio.addEventListener('timeupdate', () => { syncToAudio(); updateAudioControls(); });
+    audio.addEventListener('seeking', () => {
+      audioSeeking = true;
+      manualBrowse = false;
+      hint.textContent = followHint;
+      cancelAnimationFrame(syncFrame);
+    });
+    audio.addEventListener('seeked', () => {
+      audioSeeking = false;
+      syncToAudio(true);
+      if (!audio.paused && !audio.ended) startSyncLoop();
+    });
+    audio.addEventListener('play', () => {
+      if (manualBrowse) {
+        manualBrowse = false;
+        hint.textContent = followHint;
+      }
+      startSyncLoop();
+    });
+    audio.addEventListener('play', updateAudioControls);
+    audio.addEventListener('pause', () => { cancelAnimationFrame(syncFrame); updateAudioControls(); });
+    audio.addEventListener('ended', () => { cancelAnimationFrame(syncFrame); updateAudioControls(); });
+    prev.addEventListener('click', () => render(index - 1, 'manual'));
+    next.addEventListener('click', () => render(index + 1, 'manual'));
+    audioToggle.addEventListener('click', () => {
+      if (audio.paused) audio.play().catch(() => { hint.textContent = '点击播放按钮开始朗读。'; });
+      else audio.pause();
+    });
+    audioSeek.addEventListener('input', () => {
+      if (!audioSeek.disabled) audio.currentTime = Number(audioSeek.value) || 0;
+    });
+    voiceList.addEventListener('click', event => {
+      const card = event.target.closest('.voice-card');
+      if (card) selectVoice(Number(card.dataset.index), true);
+    });
+    voiceList.addEventListener('keydown', event => {
+      if (!['ArrowLeft','ArrowRight'].includes(event.key) || audioOptions.length < 2) return;
+      event.preventDefault();
+      const current = Number(event.target.closest('.voice-card')?.dataset.index || 0);
+      const nextVoice = (current + (event.key === 'ArrowRight' ? 1 : -1) + audioOptions.length) % audioOptions.length;
+      const nextCard = voiceList.querySelector(`[data-index="${nextVoice}"]`);
+      nextCard?.focus();
+      selectVoice(nextVoice, true);
+    });
+
+    fetch(storyApi, { cache:'no-store' })
+      .then(response => { if (!response.ok) throw new Error('story unavailable'); return response.json(); })
+      .then(buildPlayer)
+      .catch(() => {
+        loading.hidden = true;
+        caption.innerHTML = '<p><strong>绘本暂时无法打开</strong><br>请返回书架后重试。</p>';
+        hint.textContent = '故事资源暂不可用。';
+      });
+  </script>
+</body>
+</html>

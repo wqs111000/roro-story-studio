@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-service.txt
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements-service.txt
+      - name: Run Python tests
+        run: python -X utf8 -m unittest discover -s tests -q
+      - name: Check service syntax
+        run: python -B -X utf8 -c "compile(open('service/story_server.py', encoding='utf-8').read(), 'service/story_server.py', 'exec')"
+      - name: Validate Compose file
+        run: docker compose -f deploy/local/compose.yaml config --quiet
+      - name: Run workbench detail test
+        run: node --test tests/test_workbench_detail.cjs

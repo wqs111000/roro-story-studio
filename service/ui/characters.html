@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/app-icon.svg">
+  <link rel="apple-touch-icon" href="/app-icon.png">
+  <meta name="theme-color" content="#152765">
+  <title>角色图鉴 · 佑佑和 Roro 的绘本书架</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      --ink: #263b34; --muted: #65766f; --paper: #fffdf7;
+      --green: #497663; --green-deep: #31594a; --cream: #f6eedf; --sun: #f4b95e;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--ink);
+      background:
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,.82) 0 5%, transparent 22%),
+        linear-gradient(145deg, #d9eadf 0%, #f6eedf 52%, #f3dfbd 100%);
+    }
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 32px 0 68px; }
+    .topbar { display: flex; justify-content: space-between; gap: 18px; align-items: center; }
+    .back {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 10px 15px; border-radius: 999px;
+      background: rgba(255,253,247,.8); border: 1px solid rgba(49,89,74,.16);
+      color: var(--green-deep); text-decoration: none; font-weight: 800;
+    }
+    .count { color: var(--muted); font-size: 13px; }
+    header { margin: 38px 0 28px; }
+    .eyebrow { margin: 0 0 8px; color: var(--green); font-weight: 900; letter-spacing: .12em; font-size: 13px; }
+    h1 { margin: 0; font-size: clamp(34px, 6vw, 62px); line-height: 1.05; letter-spacing: -.04em; }
+    .intro { max-width: 700px; margin: 15px 0 0; color: var(--muted); font-size: 16px; line-height: 1.75; }
+    .jump-list {
+      display: flex; flex-wrap: wrap; gap: 9px; margin: 0 0 28px; padding: 10px;
+      border: 1px solid rgba(49,89,74,.12); border-radius: 22px;
+      background: rgba(255,253,247,.62); box-shadow: 0 12px 28px rgba(49,73,64,.06); backdrop-filter: blur(12px);
+    }
+    .jump-list a {
+      display: inline-flex; align-items: center; min-height: 42px; padding: 8px 14px; border-radius: 999px; background: rgba(255,253,247,.76);
+      color: var(--green-deep); border: 1px solid rgba(49,89,74,.14); text-decoration: none; font-weight: 800;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 25px; align-items: start; }
+    .character-card {
+      display: flex; flex-direction: column; height: 840px; overflow: hidden; scroll-margin-top: 20px; border-radius: 28px; background: var(--paper);
+      border: 1px solid rgba(49,89,74,.14); box-shadow: 0 20px 42px rgba(49,73,64,.13);
+    }
+    .character-card:target { outline: 5px solid rgba(244,185,94,.5); }
+    .portrait { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: linear-gradient(145deg,#fffaf0,#f1eee3); }
+    .portrait-button {
+      width: 100%; height: 100%; display: block; padding: 0; border: 0; background: transparent; color: inherit; cursor: zoom-in;
+    }
+    .portrait img { width: 100%; height: 100%; display: block; object-fit: contain; transition: transform .22s ease; }
+    .portrait-button:hover img, .portrait-button:focus-visible img { transform: scale(1.025); }
+    .zoom-hint {
+      position: absolute; right: 14px; bottom: 15px; padding: 7px 10px; border-radius: 999px;
+      background: rgba(38,59,52,.82); color: #fff; font-size: 11px; font-weight: 800;
+      opacity: 0; transform: translateY(4px); transition: opacity .18s ease, transform .18s ease;
+      pointer-events: none;
+    }
+    .portrait-button:hover .zoom-hint, .portrait-button:focus-visible .zoom-hint { opacity: 1; transform: translateY(0); }
+    .identity-badge {
+      position: absolute; left: 16px; bottom: 15px; width: 52px; height: 52px; display: grid; place-items: center;
+      border: 4px solid rgba(255,253,247,.92); border-radius: 50%; background: var(--green); color: white;
+      font-size: 18px; font-weight: 900; box-shadow: 0 8px 22px rgba(31,45,40,.25);
+    }
+    .details {
+      flex: 1; min-height: 0; overflow-y: auto; padding: 21px 22px 24px; scrollbar-gutter: stable;
+      scrollbar-width: thin; scrollbar-color: rgba(49,89,74,.22) transparent;
+    }
+    .details::-webkit-scrollbar { width: 6px; }
+    .details::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(49,89,74,.22); }
+    .details::-webkit-scrollbar-track { background: transparent; }
+    .outfit-select {
+      max-width: 100%; min-height: 42px; margin: 5px 0 0 6px; padding: 8px 12px;
+      border: 1px solid rgba(49,89,74,.25); border-radius: 12px;
+      background: #f6eedf; color: var(--green-deep); font: inherit; font-weight: 700;
+    }
+    .outfit-select:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+    .outfit-description { color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+    .tag { padding: 5px 9px; border-radius: 999px; background: #e9f1ec; color: var(--green-deep); font-size: 11px; font-weight: 800; }
+    .tag.status { background: #fff0d4; color: #8a5a16; }
+    .tag.draft { background: #f4e9f7; color: #76537d; }
+    h2 { margin: 0; font-size: 28px; }
+    .summary { margin: 10px 0 18px; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .setting { margin: 13px 0 0; padding-top: 13px; border-top: 1px solid rgba(49,89,74,.1); }
+    .setting dt { margin: 0 0 4px; color: var(--green-deep); font-size: 12px; font-weight: 900; }
+    .setting dd { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .works { margin-top: 18px; }
+    .works-title { margin: 0 0 9px; color: var(--green-deep); font-size: 12px; font-weight: 900; letter-spacing: .05em; }
+    .story-link {
+      display: grid; grid-template-columns: 54px 1fr auto; gap: 10px; align-items: center;
+      min-height: 64px; padding: 8px; border-radius: 15px; background: #f8f3e8; color: var(--ink); text-decoration: none;
+    }
+    .story-link img { width: 54px; height: 40px; border-radius: 9px; object-fit: cover; }
+    .story-link strong { font-size: 13px; line-height: 1.35; }
+    .story-link span { color: var(--green-deep); font-size: 12px; font-weight: 900; }
+    .related-story { margin-top: 18px; padding: 11px 13px; border-radius: 15px; background: #f8f3e8; }
+    .related-story strong { display: block; color: var(--green-deep); font-size: 12px; }
+    .related-story-line { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 5px; }
+    .related-story-line span:first-child { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .progress-tag { display: inline-flex; align-items: center; min-height: 22px; padding: 3px 8px; border-radius: 999px; background: #f4e9f7; color: #76537d; font-size: 11px; font-weight: 900; white-space: nowrap; }
+    .empty, .error { padding: 60px 24px; border-radius: 26px; background: rgba(255,253,247,.78); text-align: center; color: var(--muted); }
+    body.modal-open { overflow: hidden; }
+    .image-dialog {
+      width: min(94vw, 1500px); max-width: none; max-height: 94vh; margin: auto; padding: 0; overflow: hidden;
+      border: 0; border-radius: 24px; background: #fffdf7; color: var(--ink); box-shadow: 0 34px 90px rgba(21,35,30,.38);
+    }
+    .image-dialog::backdrop { background: rgba(25,38,34,.78); backdrop-filter: blur(7px); }
+    .dialog-close {
+      position: absolute; z-index: 2; top: 14px; right: 14px; width: 44px; height: 44px; display: grid; place-items: center;
+      padding: 0; border: 1px solid rgba(49,89,74,.18); border-radius: 50%; background: rgba(255,253,247,.92);
+      color: var(--green-deep); font-size: 25px; line-height: 1; cursor: pointer; box-shadow: 0 8px 24px rgba(31,45,40,.16);
+    }
+    .dialog-figure { margin: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; max-height: 94vh; }
+    .dialog-image-wrap { min-height: 0; display: grid; place-items: center; padding: 24px; background: linear-gradient(145deg,#fffaf0,#f1eee3); }
+    .dialog-image { display: block; max-width: 100%; max-height: calc(94vh - 78px); object-fit: contain; }
+    .dialog-caption { padding: 15px 72px 17px 22px; color: var(--green-deep); font-size: 14px; font-weight: 800; }
+    footer { margin-top: 36px; color: var(--muted); text-align: center; font-size: 13px; }
+    :is(a, button):focus-visible { outline: 3px solid rgba(244,185,94,.9); outline-offset: 3px; }
+    @media (max-width: 650px) {
+      .shell { width: min(100% - 22px, 1120px); padding-top: 20px; }
+      .topbar { align-items: center; }
+      .count { max-width: 48%; text-align: right; line-height: 1.45; }
+      header { margin-top: 28px; }
+      .intro { font-size: 15px; line-height: 1.65; }
+      .jump-list { position: sticky; z-index: 5; top: 8px; flex-wrap: nowrap; overflow-x: auto; margin-inline: -2px; padding: 8px; border-radius: 18px; scrollbar-width: none; }
+      .jump-list::-webkit-scrollbar { display: none; }
+      .jump-list a { flex: 0 0 auto; }
+      .grid { grid-template-columns: 1fr; }
+      .character-card { height: 780px; scroll-margin-top: 82px; }
+      .details { padding: 18px; }
+      .zoom-hint { opacity: 1; transform: none; }
+      .image-dialog { width: calc(100vw - 18px); border-radius: 18px; }
+      .dialog-image-wrap { padding: 12px; }
+      h2 { font-size: 26px; }
+      .summary { margin-bottom: 14px; }
+      .story-link { grid-template-columns: 52px minmax(0,1fr) auto; }
+    }
+    @media (max-width: 380px) { .topbar { align-items: flex-start; flex-direction: column; } .count { max-width: none; text-align: left; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="topbar" aria-label="页面导航">
+      <a class="back" href="/">← 返回绘本书架</a>
+      <span id="count" class="count">正在整理角色……</span>
+    </nav>
+
+    <header>
+      <p class="eyebrow">RORO CHARACTER GUIDE</p>
+      <h1>角色图鉴</h1>
+      <p class="intro">查看角色的不同形态，在同一形态内切换穿着，挑选适合故事的形象。点击设定图可放大查看。</p>
+    </header>
+
+    <nav id="jump-list" class="jump-list" aria-label="角色快速导航"></nav>
+    <section id="grid" class="grid" aria-live="polite">
+      <div class="empty">正在打开角色图鉴……</div>
+    </section>
+    <footer>家庭专属角色资料 · 草稿角色不等同于已批准绘本</footer>
+  </main>
+
+  <dialog id="image-dialog" class="image-dialog" aria-labelledby="image-dialog-title">
+    <button id="dialog-close" class="dialog-close" type="button" aria-label="关闭大图">×</button>
+    <figure class="dialog-figure">
+      <div class="dialog-image-wrap">
+        <img id="dialog-image" class="dialog-image" alt="">
+      </div>
+      <figcaption id="image-dialog-title" class="dialog-caption"></figcaption>
+    </figure>
+  </dialog>
+
+  <script>
+    const grid = document.querySelector('#grid');
+    const count = document.querySelector('#count');
+    const jumpList = document.querySelector('#jump-list');
+    const imageDialog = document.querySelector('#image-dialog');
+    const dialogImage = document.querySelector('#dialog-image');
+    const dialogTitle = document.querySelector('#image-dialog-title');
+    const dialogClose = document.querySelector('#dialog-close');
+    let lastImageTrigger = null;
+
+    function escapeHtml(value = '') {
+      return String(value).replace(/[&<>'"]/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[char]));
+    }
+
+    function characterAnchor(character) {
+      return encodeURIComponent(character.character_id || character.name);
+    }
+
+    function displayFormName(name = '') {
+      return String(name).replace(/形态$/, '');
+    }
+
+    function expandCharacterCards(characters) {
+      return characters.flatMap(character => {
+        const baseCard = character.character_id === 'roro'
+          ? { ...character, name: 'Roro · 暖白', badge: 'R' }
+          : character;
+        const formCards = Array.isArray(character.forms)
+          ? character.forms.map(form => ({
+              character_id: form.form_id,
+              base_character_id: character.character_id,
+              name: `${character.name} · ${displayFormName(form.name)}`,
+              badge: String(character.name || 'R').slice(0, 1),
+              type: `${character.name} 的形态`,
+              state_group: character.state_group,
+              summary: form.summary,
+              appearance: form.appearance,
+              outfits: form.outfits,
+              default_outfit_id: form.default_outfit_id,
+              status: form.status,
+              strength: character.strength,
+              image_url: form.image_url,
+              stories: form.stories
+            }))
+          : [];
+        return [baseCard, ...formCards];
+      });
+    }
+
+    function renderWorks(stories) {
+      if (!Array.isArray(stories) || !stories.length) return '';
+      return `
+        <div class="works">
+          <p class="works-title">出演的可播放绘本</p>
+          ${stories.map(story => `
+            <a class="story-link" href="${escapeHtml(story.player_url)}">
+              <img src="${escapeHtml(story.cover_url)}" alt="《${escapeHtml(story.title)}》封面" loading="lazy">
+              <strong>${escapeHtml(story.title)}</strong>
+              <span>播放 →</span>
+            </a>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderRelatedStory(character) {
+      if (Array.isArray(character.stories) && character.stories.length) {
+        return renderWorks(character.stories);
+      }
+      if (!character.related_story) return '';
+      return `
+        <div class="related-story">
+          <strong>关联绘本</strong>
+          <div class="related-story-line">
+            <span>《${escapeHtml(character.related_story.title)}》</span>
+            <span class="progress-tag">${escapeHtml(character.related_story.status || '制作中')}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function render(characters) {
+      const cards = expandCharacterCards(characters);
+      count.textContent = `${cards.length} 张图鉴 · ${characters.length} 位角色`;
+      jumpList.innerHTML = cards.map(character =>
+        `<a href="#${characterAnchor(character)}">${escapeHtml(character.name)}</a>`
+      ).join('');
+      grid.innerHTML = cards.map(character => `
+        <article id="${characterAnchor(character)}" class="character-card">
+          <div class="portrait">
+            ${character.image_url
+              ? `<button class="portrait-button" type="button" aria-label="放大查看${escapeHtml(character.name)}角色设定图" data-image-src="${escapeHtml(character.image_url)}" data-image-title="${escapeHtml(character.name)}">
+                  <img src="${escapeHtml(character.image_url)}" alt="${escapeHtml(character.name)}角色设定图" loading="lazy">
+                  <span class="zoom-hint" aria-hidden="true">点击放大</span>
+                </button>`
+              : ''}
+            <span class="identity-badge" aria-hidden="true">${escapeHtml(character.badge || String(character.name || '?').slice(0, 1))}</span>
+          </div>
+          <div class="details">
+            <div class="tags">
+              <span class="tag">${escapeHtml(character.type || '故事角色')}</span>
+              ${character.base_character_id ? '' : `<span class="tag status ${character.state_group === 'draft' ? 'draft' : ''}">${escapeHtml(character.status || '角色资料')}</span>`}
+            </div>
+            <h2>${escapeHtml(character.name)}</h2>
+            ${character.outfits?.length ? `<label>穿着 <select class="outfit-select" aria-label="${escapeHtml(character.name)}的穿着">
+              ${character.outfits.map(outfit => `<option value="${escapeHtml(outfit.outfit_id)}" ${outfit.outfit_id === character.default_outfit_id ? 'selected' : ''}>${escapeHtml(outfit.name)}</option>`).join('')}
+            </select></label><p class="outfit-description"></p>` : ''}
+            <p class="summary">${escapeHtml(character.summary)}</p>
+            ${character.appearance ? `
+              <dl class="setting">
+                <dt>外观设定</dt>
+                <dd>${escapeHtml(character.appearance)}</dd>
+              </dl>
+            ` : ''}
+            ${character.strength ? `
+              <dl class="setting">
+                <dt>擅长的事</dt>
+                <dd>${escapeHtml(character.strength)}</dd>
+              </dl>
+            ` : ''}
+            ${renderRelatedStory(character)}
+          </div>
+        </article>
+      `).join('');
+      cards.forEach(character => {
+        const card = document.getElementById(characterAnchor(character));
+        const select = card.querySelector('.outfit-select');
+        if (!select) return;
+        const update = () => {
+          const outfit = character.outfits.find(item => item.outfit_id === select.value);
+          if (!outfit) return;
+          const button = card.querySelector('.portrait-button');
+          const title = `${character.name} · ${outfit.name}`;
+          button.dataset.imageSrc = outfit.image_url;
+          button.dataset.imageTitle = title;
+          button.setAttribute('aria-label', `放大查看${title}角色设定图`);
+          button.querySelector('img').src = outfit.image_url;
+          button.querySelector('img').alt = `${title}角色设定图`;
+          card.querySelector('.outfit-description').textContent = outfit.appearance;
+        };
+        select.addEventListener('change', update);
+        update();
+      });
+      scrollToCurrentCharacter();
+    }
+
+    function scrollToCurrentCharacter() {
+      if (!location.hash) return;
+      const targetId = decodeURIComponent(location.hash.slice(1));
+      requestAnimationFrame(() => document.getElementById(targetId)?.scrollIntoView({ block: 'start' }));
+    }
+
+    window.addEventListener('hashchange', scrollToCurrentCharacter);
+
+    function openImageDialog(button) {
+      const image = button.querySelector('img');
+      lastImageTrigger = button;
+      dialogImage.src = button.dataset.imageSrc || image?.currentSrc || image?.src || '';
+      dialogImage.alt = image?.alt || '';
+      dialogTitle.textContent = button.dataset.imageTitle || image?.alt || '角色设定图';
+      document.body.classList.add('modal-open');
+      imageDialog.showModal();
+    }
+
+    function closeImageDialog() {
+      if (imageDialog.open) imageDialog.close();
+    }
+
+    grid.addEventListener('click', event => {
+      const button = event.target.closest('.portrait-button');
+      if (button) openImageDialog(button);
+    });
+    dialogClose.addEventListener('click', closeImageDialog);
+    imageDialog.addEventListener('click', event => {
+      if (event.target === imageDialog) closeImageDialog();
+    });
+    imageDialog.addEventListener('close', () => {
+      document.body.classList.remove('modal-open');
+      dialogImage.removeAttribute('src');
+      lastImageTrigger?.focus();
+      lastImageTrigger = null;
+    });
+
+    fetch('/api/characters', { cache: 'no-store' })
+      .then(response => {
+        if (!response.ok) throw new Error('characters unavailable');
+        return response.json();
+      })
+      .then(data => {
+        const characters = Array.isArray(data.characters) ? data.characters : [];
+        if (!characters.length) {
+          count.textContent = '0 位角色';
+          grid.innerHTML = '<div class="empty">角色资料尚未整理完成。</div>';
+          return;
+        }
+        render(characters);
+      })
+      .catch(() => {
+        count.textContent = '角色资料暂不可用';
+        jumpList.innerHTML = '';
+        grid.innerHTML = '<div class="error">角色图鉴暂时无法读取，请稍后刷新。</div>';
+      });
+  </script>
+</body>
+</html>

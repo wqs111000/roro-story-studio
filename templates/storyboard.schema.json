@@ -1,0 +1,342 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roro.local/schemas/storyboard.schema.json",
+  "title": "Youyou Roro Storyboard",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "story_id",
+    "status",
+    "aspect_ratio",
+    "character_invariants",
+    "shots"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "story_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "approved"
+      ]
+    },
+    "aspect_ratio": {
+      "enum": [
+        "1:1",
+        "4:3",
+        "3:2",
+        "16:9"
+      ]
+    },
+    "character_invariants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      }
+    },
+    "shots": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "page",
+          "composition",
+          "action",
+          "mood",
+          "prompt",
+          "negative_constraints"
+        ],
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 6
+          },
+          "composition": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "mood": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 6000
+          },
+          "negative_constraints": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            }
+          },
+          "scene": {
+            "type": "string",
+            "minLength": 1
+          },
+          "characters": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1
+          },
+          "allowed_changes": {
+            "type": "string",
+            "minLength": 1
+          },
+          "previous_state_reference": {
+            "$ref": "#/$defs/reference"
+          }
+        }
+      }
+    },
+    "visual_production": {
+      "type": "object",
+      "description": "原有分镜的共享视觉设定。仅新制作时补充，历史分镜不自动迁移。",
+      "required": [
+        "style",
+        "story_invariants",
+        "scale_relationship",
+        "scale_anchor_page",
+        "characters",
+        "scenes"
+      ],
+      "properties": {
+        "style": {
+          "type": "string",
+          "minLength": 1
+        },
+        "story_invariants": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scale_relationship": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scale_anchor_page": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "scale_anchor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "characters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "invariants",
+              "costume",
+              "reference"
+            ],
+            "properties": {
+              "invariants": {
+                "type": "string",
+                "minLength": 1
+              },
+              "character_id": { "type": "string", "minLength": 1 },
+              "form_id": { "type": "string", "minLength": 1 },
+              "outfit_id": { "type": "string", "minLength": 1 },
+              "selection_reason": { "type": "string", "minLength": 1 },
+              "costume": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reference": {
+                "$ref": "#/$defs/reference"
+              }
+            }
+          }
+        },
+        "scenes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "anchor_page",
+              "layout"
+            ],
+            "properties": {
+              "anchor_page": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 6
+              },
+              "layout": {
+                "type": "string",
+                "minLength": 1
+              },
+              "anchor": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/reference"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "cover": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "page",
+        "composition",
+        "action",
+        "mood",
+        "prompt",
+        "negative_constraints"
+      ],
+      "properties": {
+        "page": {
+          "const": 0
+        },
+        "composition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "mood": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6000
+        },
+        "negative_constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "scene": {
+          "type": "string",
+          "minLength": 1
+        },
+        "characters": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allowed_changes": {
+          "type": "string",
+          "minLength": 1
+        },
+        "previous_state_reference": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256",
+        "reviewed"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "reviewed": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "visual_production"
+        ]
+      },
+      "then": {
+        "properties": {
+          "shots": {
+            "items": {
+              "required": [
+                "scene",
+                "characters",
+                "state",
+                "allowed_changes"
+              ]
+            }
+          },
+          "cover": {
+            "required": [
+              "scene",
+              "characters",
+              "state",
+              "allowed_changes"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

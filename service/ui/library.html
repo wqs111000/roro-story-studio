@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/app-icon.svg">
+  <link rel="apple-touch-icon" href="/app-icon.png">
+  <meta name="theme-color" content="#152765">
+  <title>佑佑和 Roro 的绘本书架</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      --ink: #263b34;
+      --muted: #65766f;
+      --paper: #fffdf7;
+      --green: #497663;
+      --green-deep: #31594a;
+      --cream: #f6eedf;
+      --sun: #f4b95e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255,255,255,.9) 0 5%, transparent 20%),
+        linear-gradient(145deg, #d9eadf 0%, #f6eedf 52%, #f3dfbd 100%);
+    }
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 38px 0 64px; }
+    header { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; margin-bottom: 30px; }
+    .eyebrow { margin: 0 0 8px; color: var(--green); font-weight: 800; letter-spacing: .12em; font-size: 13px; }
+    h1 { margin: 0; font-size: clamp(30px, 5vw, 56px); line-height: 1.08; letter-spacing: -.035em; }
+    .intro { max-width: 660px; margin: 14px 0 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
+    .count {
+      min-width: 116px; padding: 17px 20px; border: 1px solid rgba(49,89,74,.15);
+      border-radius: 22px; background: rgba(255,253,247,.72); text-align: center; box-shadow: 0 14px 30px rgba(49,89,74,.08);
+    }
+    .count strong { display: block; font-size: 30px; color: var(--green-deep); }
+    .count span { color: var(--muted); font-size: 13px; }
+    .toolbar {
+      display: grid; grid-template-columns: minmax(240px, 1fr) auto auto minmax(210px, auto); gap: 10px;
+      margin-bottom: 24px; padding: 10px; border: 1px solid rgba(49,89,74,.12);
+      border-radius: 24px; background: rgba(255,253,247,.62); box-shadow: 0 12px 30px rgba(49,73,64,.07);
+      backdrop-filter: blur(12px);
+    }
+    .nav-link {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 11px 18px;
+      border-radius: 999px; background: var(--green); color: white; text-decoration: none; font-weight: 800;
+    }
+    .nav-link:hover { background: var(--green-deep); transform: translateY(-1px); }
+    .sync-controls { display: flex; align-items: center; gap: 9px; min-height: 46px; padding: 5px 8px; border-radius: 999px; background: rgba(255,253,247,.78); color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .sync-controls button { min-height: 36px; padding: 8px 12px; border: 0; border-radius: 999px; background: var(--green); color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+    .sync-controls button:disabled { opacity: .55; cursor: wait; }
+    .sync-controls label { display: inline-flex; align-items: center; gap: 4px; }
+    .sync-status { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+    .search {
+      width: 100%; min-width: 0; padding: 13px 17px; border-radius: 999px;
+      border: 1px solid rgba(49,89,74,.18); background: rgba(255,253,247,.8); color: var(--ink); font: inherit;
+      outline: none;
+    }
+    .search:focus { border-color: var(--green); box-shadow: 0 0 0 4px rgba(73,118,99,.12); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+    .book {
+      display: flex; flex-direction: column;
+      overflow: hidden; border-radius: 26px; border: 1px solid rgba(49,89,74,.14);
+      background: var(--paper); box-shadow: 0 18px 38px rgba(49,73,64,.12); transition: transform .2s, box-shadow .2s;
+    }
+    .book:hover { transform: translateY(-5px); box-shadow: 0 24px 44px rgba(49,73,64,.18); }
+    .cover-wrap { position: relative; aspect-ratio: 4 / 3; background: #e8dfcd; overflow: hidden; }
+    .cover { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .35s; }
+    .book:hover .cover { transform: scale(1.025); }
+    .duration {
+      position: absolute; right: 13px; bottom: 13px; padding: 7px 11px; border-radius: 999px;
+      background: rgba(31,45,40,.82); color: white; font-size: 13px; font-weight: 700; backdrop-filter: blur(8px);
+    }
+    .details { display: flex; flex: 1; flex-direction: column; padding: 20px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 11px; }
+    .tag { padding: 5px 9px; border-radius: 999px; background: #e9f1ec; color: var(--green-deep); font-size: 12px; font-weight: 700; }
+    .tag.warm { background: #fff0d4; color: #8a5a16; }
+    h2 { margin: 0; font-size: 22px; line-height: 1.35; }
+    .synopsis { min-height: 66px; margin: 10px 0 15px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .cast-block { margin: 0 0 18px; }
+    .cast-title { margin: 0 0 9px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .06em; }
+    .cast { display: flex; flex-wrap: wrap; gap: 8px; }
+    .character {
+      display: inline-grid; grid-template-columns: 30px auto; gap: 8px; align-items: center;
+      padding: 6px 10px 6px 6px; border: 1px solid rgba(49,89,74,.12); border-radius: 999px;
+      background: #f8f3e8; color: var(--ink); text-decoration: none; transition: transform .18s, border-color .18s;
+    }
+    .character:hover { transform: translateY(-2px); border-color: rgba(49,89,74,.35); }
+    .character-avatar {
+      width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%;
+      background: var(--green); color: white; font-size: 13px; font-weight: 900;
+    }
+    .character-name { display: block; font-size: 13px; font-weight: 800; line-height: 1.1; }
+    .character-type { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; line-height: 1.1; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; gap: 10px; margin-top: auto; }
+    .play, .download {
+      display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 999px; font: inherit; line-height: 1.2; font-weight: 800; cursor: pointer; appearance: none;
+    }
+    .play, .download { min-height: 46px; padding: 12px 16px; }
+    .play { background: var(--green); color: white; }
+    .play:hover { background: var(--green-deep); }
+    .download { border: 1px solid rgba(49,89,74,.22); color: var(--green-deep); background: #fff; }
+    .download:hover { border-color: var(--green); background: var(--green-soft); }
+    .grid.single { grid-template-columns: minmax(0, 940px); }
+    .grid.single .book { display: grid; grid-template-columns: minmax(340px, 1.08fr) minmax(340px, .92fr); }
+    .grid.single .cover-wrap { aspect-ratio: auto; min-height: 100%; }
+    .grid.single .details { display: flex; flex-direction: column; padding: clamp(24px, 4vw, 40px); }
+    .grid.single h2 { font-size: clamp(24px, 3vw, 34px); }
+    .grid.single .synopsis { min-height: 0; font-size: 15px; }
+    .grid.single .actions { margin-top: auto; }
+    :is(a, input):focus-visible { outline: 3px solid rgba(244,185,94,.9); outline-offset: 3px; }
+    .empty, .error { grid-column: 1 / -1; padding: 56px 24px; text-align: center; border-radius: 24px; background: rgba(255,253,247,.75); color: var(--muted); }
+    .share-modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 18px; background: rgba(28,43,37,.4); }
+    .share-modal[hidden] { display: none; }
+    .share-dialog { width: min(520px,100%); padding: 24px; border-radius: 24px; background: var(--paper); box-shadow: 0 28px 80px rgba(24,38,33,.28); }
+    .share-dialog h2 { margin: 0; font-size: 22px; }
+    .share-dialog p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .share-dialog label { display: block; margin-top: 16px; font-size: 12px; font-weight: 800; }
+    .share-dialog input, .share-dialog select { width: 100%; margin-top: 7px; padding: 12px; border: 1px solid rgba(49,89,74,.2); border-radius: 12px; background: #fff; font: inherit; }
+    .share-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .share-dialog-actions button { min-height: 42px; padding: 10px 16px; border: 0; border-radius: 999px; background: var(--green); color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+    .share-dialog-actions button:first-child { background: #fff; color: var(--green-deep); border: 1px solid rgba(49,89,74,.2); }
+    .share-result { margin-top: 15px; padding: 13px; border-radius: 15px; background: #e9f1ec; color: var(--green-deep); font-size: 12px; line-height: 1.65; }
+    .share-result[hidden] { display: none; }
+    .share-url { font-size: 11px !important; }
+    .share-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 9px; }
+    .share-row button { padding: 6px 10px; border: 1px solid rgba(49,89,74,.2); border-radius: 999px; background: #fff; color: var(--green-deep); cursor: pointer; }
+    footer { margin-top: 34px; color: var(--muted); font-size: 13px; text-align: center; }
+    @media (max-width: 650px) {
+      .shell { width: min(100% - 22px, 1180px); padding-top: 28px; }
+      header { grid-template-columns: 1fr; gap: 16px; margin-bottom: 22px; }
+      .intro { font-size: 15px; line-height: 1.65; }
+      .count { justify-self: start; display: flex; align-items: center; gap: 8px; min-width: 0; padding: 10px 15px; }
+      .count strong { font-size: 20px; }
+      .toolbar { grid-template-columns: 1fr 1fr; border-radius: 20px; padding: 8px; }
+      .search { grid-column: 1 / -1; min-height: 46px; }
+      .nav-link { min-width: 0; padding-inline: 10px; }
+      .sync-controls { grid-column: 1 / -1; justify-content: space-between; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.single .book { display: block; }
+      .grid.single .cover-wrap { aspect-ratio: 4 / 3; min-height: 0; }
+      .details { padding: 18px; }
+      .synopsis { min-height: 0; }
+      .character { min-height: 44px; }
+      footer { margin-top: 26px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">RORO STORY LIBRARY</p>
+        <h1>佑佑和 Roro 的绘本书架</h1>
+        <p class="intro">挑一本今晚想听的故事吧。这里仅展示爸爸妈妈已经审核通过的绘本，新的故事会自动加入书架。</p>
+      </div>
+      <div class="count"><strong id="count">—</strong><span>本可播放绘本</span></div>
+    </header>
+
+    <section class="toolbar" aria-label="书架工具">
+      <input id="search" class="search" type="search" placeholder="搜索标题、主题或故事内容" aria-label="搜索绘本">
+      <a class="nav-link" href="/workbench">制作工作台</a>
+      <a class="nav-link" href="/characters">角色图鉴</a>
+      <div class="sync-controls" aria-label="绘本同步">
+        <button id="sync-button" type="button">检查更新</button>
+        <label><input id="sync-auto" type="checkbox"> 自动同步</label>
+        <span id="sync-status" class="sync-status">同步状态读取中</span>
+      </div>
+    </section>
+
+    <section id="grid" class="grid" aria-live="polite">
+      <div class="empty">正在整理书架……</div>
+    </section>
+
+    <footer>家庭专属内容 · 仅展示已批准绘本</footer>
+  </main>
+
+  <div id="pin-modal" class="share-modal" hidden><div class="share-dialog"><h2>验证家长身份</h2><p>生成或撤销分享链接前，请输入 6 位家长 PIN。</p><input id="pin-input" type="password" inputmode="numeric" maxlength="6" placeholder="6 位数字"><div class="share-dialog-actions"><button id="pin-cancel" type="button">取消</button><button id="pin-submit" type="button">验证</button></div></div></div>
+  <div id="share-modal" class="share-modal" hidden><div class="share-dialog"><h2>分享这本绘本</h2><p id="share-summary">生成一个只读链接，内容绑定当前书架版本。</p><label>有效期<select id="share-expiry"><option value="7">7 天</option><option value="30">30 天</option><option value="0">永久，直到撤销</option></select></label><div id="share-result" class="share-result" hidden></div><div class="share-dialog-actions"><button id="share-cancel" type="button">关闭</button><button id="share-create" type="button">生成分享链接</button></div></div></div>
+  <script>
+    const grid = document.querySelector('#grid');
+    const count = document.querySelector('#count');
+    const search = document.querySelector('#search');
+    let stories = [];
+
+    function escapeHtml(value = '') {
+      return String(value).replace(/[&<>'"]/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[char]));
+    }
+
+    function formatDuration(seconds) {
+      if (!Number.isFinite(Number(seconds))) return '待补充';
+      const total = Math.round(Number(seconds));
+      const minutes = Math.floor(total / 60);
+      const rest = String(total % 60).padStart(2, '0');
+      return `${minutes}:${rest}`;
+    }
+
+    function childFacingSynopsis(value = '') {
+      return String(value)
+        .replace(/(?:原创)?神话猴形态的佑爸/g, '佑爸')
+        .replace(/霸王龙形态的佑爸/g, '佑爸')
+        .replace(/和(?:暖阳|星光)形态\s*Roro/g, '和 Roro')
+        .replace(/(?:暖阳|星光)形态\s*Roro/g, 'Roro');
+    }
+
+    function renderCast(cast) {
+      if (!Array.isArray(cast) || !cast.length) return '';
+      return `
+        <div class="cast-block">
+          <p class="cast-title">出场角色</p>
+          <div class="cast">
+            ${cast.map(character => `
+              <a class="character" href="/characters#${encodeURIComponent(character.character_id || character.name)}" aria-label="查看${escapeHtml(character.name)}的角色设定">
+                <span class="character-avatar" aria-hidden="true">${escapeHtml(String(character.name || '?').slice(0, 1))}</span>
+                <span>
+                  <span class="character-name">${escapeHtml(character.name)}</span>
+                  ${character.type ? `<span class="character-type">${escapeHtml(character.type)}</span>` : ''}
+                </span>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function render(items) {
+      count.textContent = stories.length;
+      grid.classList.toggle('single', items.length === 1);
+      if (!items.length) {
+        grid.innerHTML = '<div class="empty">没有找到符合条件的绘本。</div>';
+        return;
+      }
+      grid.innerHTML = items.map((story, index) => `
+        <article class="book">
+          <div class="cover-wrap">
+            <img class="cover" src="${escapeHtml(story.cover_url)}" alt="《${escapeHtml(story.title)}》封面" loading="${index < 3 ? 'eager' : 'lazy'}"${index === 0 ? ' fetchpriority="high"' : ''}>
+            <span class="duration" title="朗读时长">▶ ${formatDuration(story.duration_seconds)}</span>
+          </div>
+          <div class="details">
+            <div class="tags">
+              <span class="tag">${escapeHtml(story.theme || '原创故事')}</span>
+              ${story.age_years ? `<span class="tag">${escapeHtml(story.age_years)} 岁+</span>` : ''}
+              ${story.bedtime ? '<span class="tag warm">睡前故事</span>' : ''}
+            </div>
+            <h2>${escapeHtml(story.title)}</h2>
+            <p class="synopsis">${escapeHtml(childFacingSynopsis(story.synopsis))}</p>
+            ${renderCast(story.cast)}
+            <div class="actions">
+              <a class="play" href="${escapeHtml(`${story.player_url}${story.player_url.includes('?') ? '&' : '?'}autoplay=1`)}">播放故事</a>
+              <a class="download" href="${escapeHtml(story.download_url)}" download aria-label="下载《${escapeHtml(story.title)}》PDF 绘本">下载绘本</a>
+              <button class="download share-action" type="button" data-id="${escapeHtml(story.id)}">分享</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    search.addEventListener('input', () => {
+      const query = search.value.trim().toLowerCase();
+      const filtered = stories.filter(story =>
+        [
+          story.title,
+          story.theme,
+          story.synopsis,
+          ...(Array.isArray(story.cast) ? story.cast.flatMap(character => [character.name, character.type]) : [])
+        ].some(value => String(value || '').toLowerCase().includes(query))
+      );
+      render(filtered);
+    });
+
+    let csrf = '', pendingStoryId = '', pendingAction = '';
+    const showModal = id => { document.getElementById(id).hidden = false; };
+    const hideModals = () => document.querySelectorAll('.share-modal').forEach(node => { node.hidden = true; });
+    async function authStatus() { const response = await fetch('/api/studio/auth/status', {cache:'no-store'}); const data = await response.json(); csrf = data.csrf_token || ''; return !!data.authenticated; }
+    function showShareModal(storyId) { pendingStoryId = storyId; const story = stories.find(item => item.id === storyId); document.getElementById('share-summary').textContent = `为《${story?.title || ''}》生成当前书架版本的播放链接。对方需能访问此家庭服务；链接不会限制现有书架和下载入口。`; document.getElementById('share-result').hidden = true; document.getElementById('share-result').textContent = ''; showModal('share-modal'); loadShares(storyId); }
+    async function openShare(storyId) { pendingStoryId = storyId; if (await authStatus()) return showShareModal(storyId); pendingAction = 'open-share'; showModal('pin-modal'); document.getElementById('pin-input').focus(); }
+    async function loadShares(storyId) { const response = await fetch(`/api/studio/stories/${encodeURIComponent(storyId)}/shares`, {cache:'no-store'}); const data = await response.json(); if (!response.ok) return; const active = (data.shares || []).filter(item => item.status === 'active'); const result = document.getElementById('share-result'); if (!active.length) { result.hidden = true; return; } result.hidden = false; result.innerHTML = `<b>已有分享链接</b>${active.map(item => `<div class="share-row"><span>${item.expires_at ? `有效至 ${new Date(item.expires_at).toLocaleDateString('zh-CN')}` : '永久有效'}</span><button type="button" class="revoke-share" data-share-id="${escapeHtml(item.share_id)}">撤销</button></div>`).join('')}`; }
+    async function createShare() { const button = document.getElementById('share-create'); button.disabled = true; try { const response = await fetch(`/api/studio/stories/${encodeURIComponent(pendingStoryId)}/shares`, {method:'POST',headers:{'Content-Type':'application/json','X-Roro-CSRF':csrf},body:JSON.stringify({expires_in_days:Number(document.getElementById('share-expiry').value),allow_download:false})}); const data = await response.json(); if (!response.ok) throw new Error(data.error?.message || '分享链接生成失败'); const url = new URL(data.share.share_url, location.origin).href; const result = document.getElementById('share-result'); result.hidden = false; result.innerHTML = `<b>链接已生成</b><br><input class="share-url" type="text" readonly value="${escapeHtml(url)}" aria-label="分享链接"><br><span>只读播放器链接，已自动复制。</span>`; try { await navigator.clipboard.writeText(url); } catch {} } catch (error) { alert(error.message); } finally { button.disabled = false; } }
+    async function revokeShare(button) { button.disabled = true; const response = await fetch(`/api/studio/stories/${encodeURIComponent(pendingStoryId)}/shares/${encodeURIComponent(button.dataset.shareId)}/revoke`, {method:'POST',headers:{'Content-Type':'application/json','X-Roro-CSRF':csrf},body:'{}'}); if (response.ok) await loadShares(pendingStoryId); button.disabled = false; }
+    document.addEventListener('click', event => { const share = event.target.closest('.share-action'); if (share) openShare(share.dataset.id); const revoke = event.target.closest('.revoke-share'); if (revoke) revokeShare(revoke); });
+    document.getElementById('share-create').addEventListener('click', createShare);
+    document.getElementById('share-cancel').addEventListener('click', hideModals); document.getElementById('pin-cancel').addEventListener('click', hideModals);
+    document.getElementById('pin-submit').addEventListener('click', async () => { const pin = document.getElementById('pin-input').value.trim(); if (!/^\d{6}$/.test(pin)) { alert('请输入 6 位家长 PIN。'); return; } const response = await fetch('/api/studio/auth/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})}); const data = await response.json(); if (!response.ok) { alert(data.error?.message || '验证失败'); return; } csrf = data.csrf_token || ''; document.getElementById('pin-input').value = ''; hideModals(); if (pendingAction === 'open-share') { pendingAction = ''; showShareModal(pendingStoryId); } });
+
+    const syncButton = document.getElementById('sync-button');
+    const syncAuto = document.getElementById('sync-auto');
+    const syncStatus = document.getElementById('sync-status');
+    let syncPoll = null;
+    function syncStateLabel(data) {
+      if (data.state === 'checking') return '正在检查…';
+      if (data.state === 'downloading') return `正在同步 ${data.found || 0} 本`;
+      if (data.state === 'failed') return `同步失败：${data.error || '请稍后重试'}`;
+      if (data.state === 'complete') return `已完成${data.found ? `，更新 ${data.found} 本` : '，已是最新'}`;
+      return '等待检查';
+    }
+    async function loadSyncStatus() {
+      try {
+        const response = await fetch('/api/sync/status', {cache:'no-store'});
+        if (!response.ok) { document.querySelector('.sync-controls').hidden = true; return null; }
+        const data = await response.json();
+        syncAuto.checked = !!data.settings?.enabled;
+        syncButton.disabled = !!data.running;
+        syncStatus.textContent = syncStateLabel(data);
+        return data;
+      } catch { syncStatus.textContent = '同步服务不可用'; return null; }
+    }
+    async function loadStories() {
+      return fetch('/api/stories', { cache: 'no-store' })
+        .then(response => {
+          if (!response.ok) throw new Error('catalog unavailable');
+          return response.json();
+        })
+        .then(data => { stories = Array.isArray(data.stories) ? data.stories : []; render(stories); })
+        .catch(() => { count.textContent = '0'; grid.innerHTML = '<div class="error">书架暂时无法读取，请稍后刷新。</div>'; });
+    }
+    async function startSync() {
+      syncButton.disabled = true; syncStatus.textContent = '准备检查…';
+      try {
+        const response = await fetch('/api/sync/start', {method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error?.message || '同步启动失败');
+        clearInterval(syncPoll);
+        syncPoll = setInterval(async () => { const status = await loadSyncStatus(); if (status && !status.running) { clearInterval(syncPoll); if (status.state === 'complete') await loadStories(); } }, 1000);
+        await loadSyncStatus();
+      } catch (error) { syncButton.disabled = false; syncStatus.textContent = error.message; }
+    }
+    syncButton.addEventListener('click', startSync);
+    syncAuto.addEventListener('change', async () => {
+      const response = await fetch('/api/sync/settings', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:syncAuto.checked})});
+      if (!response.ok) syncAuto.checked = !syncAuto.checked;
+    });
+
+    loadStories();
+    loadSyncStatus();
+  </script>
+</body>
+</html>

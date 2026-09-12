@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/app-icon.svg">
+  <link rel="apple-touch-icon" href="/app-icon.png">
+  <meta name="theme-color" content="#152765">
+  <title>制作工作台 · 佑佑和 Roro</title>
+  <style>
+    :root { color-scheme:light; font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; --ink:#263b34; --muted:#687871; --paper:#fffdf7; --paper-soft:#f9f4e9; --green:#497663; --green-deep:#31594a; --green-soft:#e8f1ec; --cream:#f6eedf; --sun:#e7a94f; --sun-soft:#fff0d4; --clay:#b85f52; --clay-soft:#f9e8e4; --blue:#5f7f91; --blue-soft:#e9f0f4; --line:rgba(49,89,74,.14); --shadow:0 18px 44px rgba(49,73,64,.11); }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;color:var(--ink);background:radial-gradient(circle at 10% 4%,rgba(255,255,255,.95) 0 5%,transparent 22%),linear-gradient(145deg,#dbeadf 0%,#f6eedf 55%,#f3dfbd 100%)}
+    button,input,textarea,select{font:inherit} button{color:inherit}[hidden]{display:none!important}.shell{width:min(1240px,calc(100% - 40px));margin:0 auto;padding:34px 0 56px}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:24px}.eyebrow{margin:0 0 7px;color:var(--green);font-size:12px;font-weight:900;letter-spacing:.14em}h1{margin:0;font-size:clamp(30px,4.4vw,52px);line-height:1.08;letter-spacing:-.035em}.intro{max-width:730px;margin:12px 0 0;color:var(--muted);font-size:15px;line-height:1.7}.top-actions,.actions,.pager,.audio-controls,.modal-actions,.review-head-actions{display:flex;gap:10px;align-items:center}
+    .button{min-height:42px;padding:10px 16px;border:1px solid var(--line);border-radius:999px;background:rgba(255,253,247,.86);color:var(--green-deep);font-weight:850;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;transition:.18s ease}.button:hover:not(:disabled){transform:translateY(-1px);border-color:rgba(49,89,74,.32);box-shadow:0 8px 20px rgba(49,73,64,.1)}.button:disabled{opacity:.45;cursor:not-allowed}.button.primary{border-color:var(--green);background:var(--green);color:#fff}.button.primary:hover:not(:disabled){background:var(--green-deep)}.button.reject{border-color:rgba(184,95,82,.38);background:#fffaf7;color:#93493f}.button.danger{border-color:var(--clay);background:var(--clay);color:#fff}:is(button,a,input,textarea):focus-visible{outline:3px solid rgba(231,169,79,.85);outline-offset:3px}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.metric{padding:15px 17px;border:1px solid var(--line);border-radius:19px;background:rgba(255,253,247,.74);box-shadow:0 10px 26px rgba(49,73,64,.06)}.metric strong{display:block;color:var(--green-deep);font-size:27px;line-height:1}.metric span{display:block;margin-top:7px;color:var(--muted);font-size:12px;font-weight:750}
+    .filters{display:flex;gap:8px;align-items:center;margin-bottom:20px;padding:9px;border:1px solid var(--line);border-radius:22px;background:rgba(255,253,247,.64);backdrop-filter:blur(12px)}.search{min-width:240px;flex:1;padding:12px 16px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.75);color:var(--ink);outline:none}.filter{min-height:40px;padding:9px 14px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-weight:800;cursor:pointer}.filter.active{background:var(--green);color:#fff}.source-library{margin:0 0 25px;padding:20px;border:1px solid var(--line);border-radius:25px;background:rgba(255,253,247,.76);box-shadow:var(--shadow)}.source-library-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:14px}.source-library h2{margin:0;font-size:22px}.source-library p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.55}.library-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px}.library-search{flex:1;min-width:220px;padding:11px 14px;border:1px solid var(--line);border-radius:999px;background:#fff}.library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}.library-card{display:flex;flex-direction:column;gap:11px;padding:15px;border:1px solid var(--line);border-radius:18px;background:#fff}.library-card.selected{border-color:#d5a84b;box-shadow:0 0 0 2px rgba(213,168,75,.16)}.library-card-head{display:flex;gap:10px;align-items:flex-start}.library-card input{width:18px;height:18px;margin-top:3px;accent-color:var(--green)}.library-card h3{margin:0;font-size:16px;line-height:1.35}.library-card .library-meta{margin:4px 0 0;color:var(--muted);font-size:11px}.library-card .library-desc{margin:0;color:#53665e;font-size:12px;line-height:1.5}.library-empty{padding:20px;color:var(--muted);text-align:center}.library-legend{font-size:11px!important}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}.story-card{overflow:hidden;border:1px solid var(--line);border-radius:25px;background:rgba(255,253,247,.94);box-shadow:var(--shadow)}.card-main{display:grid;grid-template-columns:128px minmax(0,1fr);min-height:155px}.cover{overflow:hidden;background:#e6ddcc}.cover img{width:100%;height:100%;object-fit:cover;display:block}.card-copy{padding:16px 17px 13px}.status-row{display:flex;flex-wrap:wrap;gap:7px;align-items:center}.status,.theme{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:850}.status{background:var(--green-soft);color:var(--green-deep)}.status.review{background:var(--sun-soft);color:#855817}.status.returned{background:var(--clay-soft);color:#93493f}.status.working{background:var(--blue-soft);color:#466575}.theme{background:#f4efe4;color:var(--muted)}.story-card h2{margin:11px 0 7px;font-size:20px;line-height:1.3}.synopsis{margin:0;color:var(--muted);font-size:13px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.evidence{display:flex;flex-wrap:wrap;gap:7px;padding:13px 16px;border-top:1px solid var(--line);background:rgba(246,238,223,.45)}.evidence span{padding:5px 8px;border-radius:9px;background:#fff;color:var(--muted);font-size:11px;font-weight:750}.card-footer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) auto;align-items:center;gap:9px;padding:12px 15px 15px}.card-footer .button{width:100%;min-width:0;white-space:nowrap}.updated{color:var(--muted);font-size:11px;white-space:nowrap}.empty,.error{grid-column:1/-1;padding:58px 24px;text-align:center;border:1px solid var(--line);border-radius:24px;background:rgba(255,253,247,.76);color:var(--muted)}
+    .review{display:none;overflow:hidden;border:1px solid var(--line);border-radius:28px;background:var(--paper);box-shadow:0 26px 70px rgba(38,59,52,.18)}.review.open{display:block;padding-bottom:84px}.review-head{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line);background:rgba(249,244,233,.8)}.review-head h2{margin:0;font-size:24px}.review-meta{margin:6px 0 0;color:var(--muted);font-size:12px}.review-body{display:grid;grid-template-columns:160px minmax(0,1fr) 310px;min-height:620px}.rail{padding:13px 10px;border-right:1px solid var(--line);background:#f8f3e8}.rail-title{margin:3px 6px 10px;color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.08em}.thumb{width:100%;display:grid;grid-template-columns:58px 1fr;gap:8px;align-items:center;margin-bottom:8px;padding:6px;border:1px solid transparent;border-radius:13px;background:transparent;text-align:left;cursor:pointer}.thumb.active{border-color:rgba(73,118,99,.28);background:#fff;box-shadow:0 7px 16px rgba(49,73,64,.08)}.thumb img{width:58px;height:44px;object-fit:cover;border-radius:8px;background:#ded5c5}.thumb b{display:block;font-size:12px}.thumb small{display:block;margin-top:3px;color:var(--muted);font-size:9px}.canvas{min-width:0;padding:18px;background:linear-gradient(180deg,#f4efe5,#eee5d5)}.canvas-tools{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:11px;color:var(--muted);font-size:12px;font-weight:800}.canvas-tool-actions{display:flex;gap:10px;align-items:center}.canvas-tools label{display:flex;gap:6px;align-items:center}.canvas-tools .button{min-height:32px;padding:6px 11px;font-size:11px}.page-wrap{overflow:hidden;aspect-ratio:4/3;border-radius:18px;background:#d8d0c2;box-shadow:0 18px 42px rgba(38,59,52,.18)}.page-wrap.has-image{cursor:zoom-in}.page-wrap img{width:100%;height:100%;object-fit:cover;display:block}.page-missing{height:100%;display:grid;place-items:center;color:var(--muted)}.page-copy{min-height:78px;margin-top:12px;padding:12px 14px;border:1px solid rgba(49,89,74,.1);border-radius:15px;background:rgba(255,253,247,.84)}.page-copy h3{margin:0 0 5px;font-size:13px}.page-copy p{margin:0;color:#53665e;font-size:12px;line-height:1.55}.pager{justify-content:space-between;margin-top:11px}.pager span{color:var(--muted);font-size:12px;font-weight:800}
+    .inspect{padding:19px 18px;border-left:1px solid var(--line);background:#fffdf8}.inspect h3{margin:0;font-size:18px}.inspect-sub{margin:7px 0 15px;color:var(--muted);font-size:12px;line-height:1.55}.candidate-box{margin-top:14px;padding:11px 12px;border:1px solid rgba(49,89,74,.08);border-radius:14px;background:rgba(237,244,238,.68)}.candidate-box b,.candidate-box span{display:block}.candidate-box b{font-size:11px}.candidate-box span{margin-top:4px;color:var(--muted);font-size:9px;word-break:break-all}.audio{padding:14px;border:1px solid var(--line);border-radius:17px;background:var(--paper-soft)}.audio-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.audio-head span{padding:4px 7px;border-radius:999px;background:var(--sun-soft);color:#855817;font-size:9px;font-weight:850}.audio-voice-panel{margin-top:11px;padding:9px;border:1px solid rgba(57,98,79,.12);border-radius:14px;background:linear-gradient(145deg,#fffdf7,#f5eddb)}.audio-voice-panel[hidden]{display:none}.audio-voice-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:0 2px 8px;color:var(--green-deep);font-size:11px;font-weight:850}.audio-voice-head span{color:var(--muted);font-size:9px;font-weight:700}.audio-voices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.audio-voice-card{min-width:0;min-height:72px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:8px 5px;border:1px solid rgba(57,98,79,.14);border-radius:12px;color:#586a60;background:rgba(255,255,255,.76);text-align:center;box-shadow:0 1px 0 rgba(255,255,255,.8) inset;cursor:pointer}.audio-voice-card:hover{border-color:rgba(57,98,79,.3);background:#fffdf8}.audio-voice-card:focus-visible{outline:3px solid rgba(57,98,79,.22);outline-offset:2px}.audio-voice-card[aria-checked="true"]{color:var(--green-deep);border-color:#d5a84b;background:linear-gradient(145deg,#fff8dc,#ffedb7);box-shadow:0 4px 10px rgba(170,121,36,.14)}.audio-voice-orb{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;color:#fff;background:#779486;font-size:11px;font-weight:900}.audio-voice-card[data-voice="roro-01"] .audio-voice-orb{background:#d89536}.audio-voice-card[data-voice="girl"] .audio-voice-orb{background:#d77d8f}.audio-voice-card[data-voice="man"] .audio-voice-orb{background:#587b91}.audio-voice-card[data-voice="wqs"] .audio-voice-orb{background:#8c73ac}.audio-voice-copy{width:100%;min-width:0}.audio-voice-copy b,.audio-voice-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.audio-voice-copy b{font-size:10px}.audio-voice-copy small{margin-top:2px;color:#7d887f;font-size:8px;font-weight:700}.audio-controls{margin-top:13px}.audio-toggle{width:40px;height:40px;border:0;border-radius:50%;background:var(--green);color:#fff;font-weight:900;cursor:pointer}.audio-range{flex:1;height:28px;margin:0;appearance:none;-webkit-appearance:none;border:0;outline:0;cursor:pointer;background:linear-gradient(to right,var(--green) 0 var(--progress),#d9d3c7 var(--progress) 100%);border-radius:999px;--progress:0%}.audio-range::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border:3px solid #fff;border-radius:50%;background:var(--green);box-shadow:0 2px 8px rgba(38,59,52,.28)}.audio-range::-moz-range-thumb{width:15px;height:15px;border:3px solid #fff;border-radius:50%;background:var(--green);box-shadow:0 2px 8px rgba(38,59,52,.28)}.audio-range:disabled{opacity:.42;cursor:not-allowed}.audio-times{display:flex;justify-content:space-between;margin-top:3px;color:var(--muted);font-size:10px}.audio-native{display:none}
+    .review.open .decision-bar{position:fixed;left:50%;bottom:0;z-index:12;width:min(1240px,calc(100% - 40px));transform:translateX(-50%);box-shadow:0 -14px 34px rgba(38,59,52,.12)}.decision-bar{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:14px 18px;border:1px solid var(--line);border-radius:18px 18px 0 0;background:rgba(255,253,247,.97);backdrop-filter:blur(16px)}.decision-copy strong,.decision-copy span,.decision-feedback{display:block}.decision-copy strong{font-size:13px}.decision-copy span{margin-top:3px;color:var(--muted);font-size:11px}.decision-feedback{margin-top:8px;padding:8px 10px;border-left:3px solid #d48b47;color:var(--ink);font-size:12px;line-height:1.5;background:#fff8ec;border-radius:6px}.decision-actions{display:flex;gap:10px}.decision-actions .button{min-width:132px}footer{margin-top:30px;color:var(--muted);text-align:center;font-size:12px}
+    .modal-backdrop{position:fixed;inset:0;z-index:30;display:none;place-items:center;padding:18px;background:rgba(28,43,37,.38);backdrop-filter:blur(5px)}.modal-backdrop.open{display:grid}.modal{width:min(520px,100%);max-height:min(720px,calc(100vh - 36px));overflow:auto;padding:23px;border:1px solid rgba(255,255,255,.55);border-radius:24px;background:var(--paper);box-shadow:0 28px 80px rgba(24,38,33,.28)}.modal h3{margin:0;font-size:22px}.modal p{margin:9px 0 0;color:var(--muted);font-size:13px;line-height:1.65}.modal label.field{display:block;margin-top:16px;color:var(--ink);font-size:12px;font-weight:850}.modal input[type=password],.modal textarea{width:100%;margin-top:7px;padding:12px 13px;border:1px solid var(--line);border-radius:13px;background:#fff;outline:none}.modal textarea{min-height:92px;resize:vertical}.modal-actions{justify-content:flex-end;margin-top:20px}.tag-options{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.tag-option input{position:absolute;opacity:0;pointer-events:none}.tag-option span{display:block;padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:11px;font-weight:800;cursor:pointer}.tag-option input:checked+span{border-color:rgba(184,95,82,.5);background:var(--clay-soft);color:#93493f}.summary-box{margin-top:15px;padding:13px;border-radius:15px;background:var(--green-soft);font-size:12px;line-height:1.65}.toast{position:fixed;right:22px;bottom:22px;z-index:50;max-width:380px;padding:13px 16px;border-radius:14px;background:#263b34;color:#fff;box-shadow:0 18px 46px rgba(20,32,27,.28);font-size:12px;opacity:0;transform:translateY(12px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}
+    .pdf-actions{display:flex;gap:8px;margin:0 0 14px}.pdf-actions .button{min-height:36px;padding:8px 12px;font-size:12px}.image-modal{width:min(1180px,100%);padding:14px}.image-modal-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:3px 4px 12px}.image-modal-head h3{font-size:18px}.image-modal img{display:block;width:100%;max-height:calc(100vh - 130px);object-fit:contain;border-radius:14px;background:#ded5c5}
+    .workflow-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 18px;padding:7px;border:1px solid var(--line);border-radius:20px;background:rgba(255,253,247,.68);box-shadow:0 10px 28px rgba(49,73,64,.06)}.workflow-tab{min-height:52px;display:flex;gap:9px;align-items:center;justify-content:center;border:0;border-radius:14px;background:transparent;color:var(--muted);font-size:13px;font-weight:850;cursor:pointer}.workflow-tab span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:rgba(73,118,99,.09);font-size:10px}.workflow-tab.active{background:var(--green-deep);color:#fff;box-shadow:0 8px 18px rgba(49,73,64,.2)}.workflow-tab.active span{background:rgba(255,255,255,.18)}.section-kicker{margin:0 0 7px!important;color:var(--green)!important;font-size:10px!important;font-weight:900;letter-spacing:.16em}.selection-summary{min-width:144px;padding:14px;border:1px solid rgba(73,118,99,.13);border-radius:17px;background:var(--green-soft);text-align:center}.selection-summary strong,.selection-summary span{display:block}.selection-summary strong{font-size:28px;line-height:1;color:var(--green-deep)}.selection-summary span{margin:5px 0 10px;color:var(--muted);font-size:10px;font-weight:800}.selection-summary .button{width:100%;min-height:36px;padding:7px 11px;font-size:11px}.source-guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 14px}.source-guide-item{padding:11px 12px;border:1px solid rgba(73,118,99,.12);border-radius:14px;background:rgba(245,242,231,.64)}.source-guide-item b{display:block;margin-bottom:4px;color:var(--green-deep);font-size:11px}.source-guide-item span{display:block;color:var(--muted);font-size:10px;line-height:1.5}.library-filters{display:flex;gap:5px;padding:4px;border-radius:999px;background:rgba(73,118,99,.07)}.library-filter{padding:8px 10px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-size:10px;font-weight:850;cursor:pointer}.library-filter.active{background:#fff;color:var(--green-deep);box-shadow:0 3px 10px rgba(49,73,64,.09)}.library-card{position:relative;display:flex;flex-direction:column;gap:0;min-height:190px;padding:14px;overflow:hidden}.library-card-main{display:grid;grid-template-columns:52px minmax(0,1fr);gap:11px;align-items:start}.library-card-cover{width:52px;height:52px;position:relative;display:grid;place-items:center;overflow:hidden;border-radius:14px;background:linear-gradient(145deg,#dcebdd,#f5dfb7)}.library-card-cover img{width:100%;height:100%;object-fit:cover}.library-card-cover .initial{font-family:Georgia,serif;font-size:22px;color:rgba(49,89,74,.7)}.library-card-body{min-width:0;padding:0}.library-card-title-row{display:flex;gap:7px;align-items:flex-start;justify-content:space-between}.library-card h3{margin:5px 0 0;font-size:16px}.library-state{flex:none;padding:5px 8px;border-radius:999px;background:var(--green-soft);color:var(--green-deep);font-size:9px;font-weight:900}.library-card.discarded{background:rgba(245,242,231,.68)}.library-card.discarded .library-state{background:#eee9dd;color:#776f63}.library-card .library-desc{display:-webkit-box;overflow:hidden;margin:12px 0 0;-webkit-line-clamp:3;-webkit-box-orient:vertical;color:#53665e;font-size:12px;line-height:1.55}.library-card-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:auto;padding-top:13px}.library-card-actions .button{width:100%;min-height:36px;padding:7px 8px;font-size:10px}.library-card-actions .discard{color:#8b554d}.source-pill{display:inline-flex;margin-right:5px;padding:4px 7px;border-radius:999px;background:var(--paper-soft);color:var(--muted);font-size:9px;font-weight:850}.library-card.unselectable{opacity:.9}.board-head{display:flex;justify-content:space-between;gap:18px;align-items:end;margin:6px 0 18px}.board-head h2{margin:0;font-size:26px}.board-head p:not(.section-kicker){margin:6px 0 0;color:var(--muted);font-size:13px}.board-head .search{max-width:360px}.story-detail-list{display:grid;gap:9px;margin-top:15px}.story-detail-page{padding:12px 14px;border-radius:14px;background:var(--paper-soft)}.story-detail-page>b{display:block;font-size:12px}.spoken-label{display:block;margin-top:9px;color:var(--green-deep);font-size:10px;font-weight:900;letter-spacing:.08em}.spoken-line{margin:5px 0 0!important;color:#40574e!important;font-size:12px!important;line-height:1.65!important}.spoken-line+.spoken-line{padding-top:5px;border-top:1px dashed rgba(49,89,74,.12)}.spoken-pending{margin-top:8px;padding:8px 10px;border-radius:9px;background:var(--sun-soft);color:#855817;font-size:11px;line-height:1.55}.modal.story-library-modal{width:min(700px,100%)}
+    @media(max-width:950px){.review-body{grid-template-columns:132px minmax(0,1fr)}.inspect{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}.metrics{grid-template-columns:repeat(2,1fr)}.workflow-tabs{grid-template-columns:repeat(2,1fr)}.source-library-head,.board-head{align-items:stretch;flex-direction:column}.selection-summary{display:flex;gap:10px;align-items:center;text-align:left}.selection-summary strong,.selection-summary span{display:inline}.selection-summary .button{width:auto;margin-left:auto}.source-guide{grid-template-columns:1fr}.library-toolbar{align-items:stretch;flex-direction:column}.library-filters{overflow-x:auto}.board-head .search{max-width:none}}
+    @media(max-width:680px){.shell{width:min(100% - 20px,1240px);padding-top:22px}.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%}.top-actions .button{flex:1}.filters{flex-wrap:wrap}.search{flex-basis:100%;min-width:0}.filter{flex:1 1 auto;min-height:44px}.grid{grid-template-columns:1fr}.card-main{grid-template-columns:104px minmax(0,1fr)}.card-footer{grid-template-columns:repeat(2,minmax(0,1fr))}.card-footer .button{min-height:46px}.updated{grid-column:1/-1;justify-self:end}.review{border-radius:20px}.review.open{padding-bottom:132px}.review-head{align-items:flex-start;flex-direction:column}.review-head-actions{width:100%}.review-head-actions .button{flex:1}.review-body{display:block;min-height:0}.rail{overflow:hidden;padding:9px;border-right:0;border-bottom:1px solid var(--line)}.rail-title{display:none}#thumbs{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.thumb{flex:0 0 116px;grid-template-columns:40px 1fr;margin:0}.thumb img{width:40px;height:32px}.canvas{padding:13px 10px 15px}.canvas-tools{align-items:flex-start}.canvas-tool-actions{align-items:flex-end;flex-direction:column}.page-wrap{border-radius:13px}.inspect{padding:16px 14px}.review.open .decision-bar{width:calc(100% - 20px)}.decision-bar{align-items:stretch;flex-direction:column;padding:12px}.decision-actions{width:100%}.decision-actions .button{flex:1;min-width:0;min-height:48px}.modal{padding:19px}}
+    .workflow-tabs{grid-template-columns:repeat(5,1fr)}.card-main{grid-template-columns:84px minmax(0,1fr);min-height:145px}.cover{display:grid;place-items:center;background:linear-gradient(145deg,#e3eadf,#eee1c9)}.cover .initial{font-family:Georgia,serif;font-size:30px;color:rgba(49,89,74,.58)}
+    @media(max-width:680px){.card-main{grid-template-columns:72px minmax(0,1fr)}.workflow-tab{font-size:11px}}
+    /* Unified workbench: one navigation layer, compact content sections, and readable actions. */
+    .shell{width:min(1180px,calc(100% - 40px));padding:28px 0 48px}.topbar{align-items:center;margin-bottom:18px}.eyebrow{margin-bottom:5px;font-size:11px}.topbar h1{font-size:clamp(30px,4vw,46px)}.intro{margin-top:8px;font-size:14px;line-height:1.55}.workflow-tabs{position:sticky;top:10px;z-index:8;display:flex;gap:4px;margin:0 0 26px;padding:5px;border-radius:16px;background:rgba(255,253,247,.94);box-shadow:0 8px 24px rgba(49,73,64,.1);backdrop-filter:blur(12px)}.workflow-tab{flex:1;min-height:44px;gap:7px;border-radius:12px;font-size:14px}.workflow-tab span{display:none}.workflow-tab .tab-count{display:inline-grid;width:auto;height:auto;min-width:20px;padding:2px 6px;border-radius:999px;background:rgba(73,118,99,.1);font-size:11px}.workflow-tab.active .tab-count{background:rgba(255,255,255,.18)}.source-library{margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}.source-library-head{align-items:center;margin:0 0 12px}.source-library h2,.board-head h2{font-size:28px;line-height:1.2}.section-kicker{display:none}.source-library p,.board-head p:not(.section-kicker){margin:5px 0 0;font-size:14px}.library-legend{display:none}.source-note{margin:0 0 12px;color:var(--muted);font-size:13px}.source-note summary{width:max-content;cursor:pointer;color:var(--green-deep);font-weight:800}.source-guide{margin-top:10px}.source-guide-item{padding:10px 12px}.source-guide-item b{font-size:12px}.source-guide-item span{font-size:12px}.library-toolbar{margin-bottom:16px}.library-search,.search{min-height:46px;font-size:14px}.library-filter{min-height:38px;padding:8px 12px;font-size:12px}.library-grid{gap:14px}.library-card{min-height:174px;padding:16px;border-radius:18px}.library-card-cover{width:56px;height:56px}.library-card h3{font-size:17px}.library-card .library-desc{margin-top:10px;font-size:13px;line-height:1.55}.source-pill,.library-state{font-size:10px}.library-card-actions{grid-template-columns:1fr 1fr;gap:8px;padding-top:12px}.library-card-actions .button{min-height:40px;padding:8px 10px;font-size:12px}.library-card-actions .discard{display:none}.board-head{align-items:center;margin:0 0 14px}.board-head .search{max-width:340px}.grid{gap:14px}.story-card{border-radius:20px;box-shadow:0 10px 28px rgba(49,73,64,.08)}.card-main{grid-template-columns:96px minmax(0,1fr);min-height:132px}.card-copy{padding:14px 15px}.story-card h2{margin:8px 0 5px;font-size:19px}.synopsis{font-size:13px;line-height:1.5;-webkit-line-clamp:2}.evidence{padding:10px 14px}.evidence span{font-size:12px}.card-footer{padding:11px 14px 14px}.card-footer .button{min-height:42px;font-size:13px}.empty,.error{padding:28px 18px;border-radius:18px;font-size:14px}.review-head{padding:16px 18px}.review-head-actions .button{min-height:42px;font-size:13px}.review-meta{font-size:13px}.candidate-box b{font-size:12px}.candidate-box span{font-size:10px}.decision-copy strong{font-size:14px}.decision-copy span,.decision-feedback{font-size:12px}@media(max-width:680px){.shell{width:min(100% - 24px,1180px);padding-top:20px}.topbar{gap:14px}.top-actions{gap:8px}.top-actions .button{min-height:40px;padding:8px 12px}.workflow-tabs{top:6px;margin-bottom:20px;overflow-x:auto}.workflow-tab{flex:0 0 auto;min-width:max-content;padding:0 13px;font-size:13px}.source-library-head,.board-head{gap:10px}.source-library h2,.board-head h2{font-size:25px}.library-toolbar{gap:8px}.library-filters{padding:3px}.library-card{min-height:0}.library-card-actions{grid-template-columns:1fr 1fr}.card-main{grid-template-columns:82px minmax(0,1fr);min-height:120px}.cover{min-height:120px}.story-card h2{font-size:18px}.card-footer{grid-template-columns:1fr 1fr}.updated{display:none}.review.open{padding-bottom:144px}}
+    .board-head-actions{display:flex;gap:10px;align-items:center}.board-head-actions .button{white-space:nowrap}
+    @media(max-width:950px){.board-head-actions{width:100%}.board-head-actions .search{flex:1;max-width:none}}
+    @media(max-width:680px){.board-head-actions{align-items:stretch;flex-direction:column}.board-head-actions .button,.board-head-actions .search{width:100%;max-width:none}}
+    .library-card-actions .discard{display:inline-flex}
+    .story-card{display:flex;flex-direction:column}.story-card .card-main{flex:1}.story-card .card-footer{margin-top:auto;grid-template-columns:repeat(3,minmax(0,1fr))}.story-card .card-footer .button,.story-card .card-footer .action-placeholder{min-height:42px}.action-placeholder{display:block}
+    .shelf-reason{margin:10px 0 0;padding:9px 11px;border-left:3px solid var(--clay);border-radius:9px;background:var(--clay-soft);color:#70483f;font-size:12px;line-height:1.5}.shelf-reason b{display:block;margin-bottom:2px;color:#93493f;font-size:11px}.shelf-reason span{display:block;overflow-wrap:anywhere}
+    @media(max-width:680px){.story-card .card-footer{grid-template-columns:1fr}.story-card .card-footer .action-placeholder{display:none}}
+    .library-card-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media(max-width:680px){.library-card-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.library-card-actions .button{padding-left:4px;padding-right:4px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+    .workflow-guide{margin:0 0 12px;padding:14px 18px;background:var(--paper);border:1px solid var(--line);border-radius:18px;line-height:1.8;font-size:14px}.workflow-guide summary{cursor:pointer;font-weight:800}.workflow-guide ol{padding-left:22px}.workflow-guide p{color:var(--muted);margin-bottom:0}#workbench-sync{font-size:13px;color:var(--muted);min-height:20px}.next-step{padding:10px 17px;margin:0;background:var(--green-soft);font-size:13px;line-height:1.6}.top-actions{flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div id="dashboard-head">
+      <header class="topbar"><div><p class="eyebrow">RORO STORY STUDIO</p><h1>绘本制作工作台</h1><p id="review-mode-copy" class="intro">管理备选、制作、审核和已上架绘本。</p></div><nav class="top-actions"><button id="refresh-workbench" class="button" type="button">刷新进度</button><a class="button" href="/">书架</a><a class="button" href="/characters">角色</a></nav></header>
+<details class="workflow-guide"><summary>一本绘本怎样完成？</summary><ol><li><b>告诉创作客户端故事想法</b>：日常经历只使用你提供的事实，先写成 4–6 页故事。</li><li><b>从备选故事库选择要制作的故事</b>：点击“制作”加入清单，再在创作客户端中说“继续制作清单中的绘本”。</li><li><b>完成图文和旁白</b>：创作客户端 制作插图、同步朗读并检查人物和场景；你可以预览进度。</li><li><b>最后看一遍、听一遍</b>：在待审核中逐页查看；通过并上架，或留下具体修改意见。</li></ol><p>网页负责选择、预览和审核；创作由创作客户端执行。上架后可以在家庭书架阅读，外部导出需单独决定。</p></details>
+      <p id="workbench-sync" role="status" aria-live="polite">正在读取当前页面…</p>
+    </div>
+    <nav class="workflow-tabs" aria-label="绘本工作台视图"><button class="workflow-tab active" data-view="candidates" aria-pressed="true">备选 <span id="metric-candidates" class="tab-count">—</span></button><button class="workflow-tab" data-view="working" aria-pressed="false">制作中 <span id="metric-working" class="tab-count">—</span></button><button class="workflow-tab" data-view="review" aria-pressed="false">待审核 <span id="metric-review" class="tab-count">—</span></button><button class="workflow-tab" data-view="published" aria-pressed="false">已上架 <span id="metric-published" class="tab-count">—</span></button><button class="workflow-tab" data-view="unpublished" aria-pressed="false">已下架 <span id="metric-unpublished" class="tab-count">—</span></button></nav>
+    <section id="library-view"><section id="candidate-library" class="source-library" aria-labelledby="story-library-title"><div class="source-library-head"><div><p id="library-kicker" class="section-kicker">备选</p><h2 id="story-library-title">备选绘本</h2><p id="story-library-copy">从已写好的故事中选择，加入后进入制作中。</p><p id="library-source-summary" class="library-legend">正在读取故事来源…</p></div></div><details class="source-note"><summary>故事来源说明</summary><div id="source-guide" class="source-guide" aria-label="故事来源说明"><div class="source-guide-item"><b>日常改编</b><span>只使用家长提供的真实事件和生活素材。</span></div><div class="source-guide-item"><b>原创冒险</b><span>使用原创角色、地点和冲突写成独立故事。</span></div><div class="source-guide-item"><b>母题再创作</b><span>只借用通用结构，角色、语言和情节全部重写。</span></div></div></details><div id="library-toolbar" class="library-toolbar"><input id="library-search" class="library-search" type="search" placeholder="搜索标题、主题或简介" aria-label="搜索备选绘本"><div class="library-filters" aria-label="故事来源筛选"><button class="library-filter active" data-library-filter="all">全部</button><button class="library-filter" data-library-filter="original_adventure">原创冒险</button><button class="library-filter" data-library-filter="daily_life">日常改编</button><button class="library-filter" data-library-filter="classic_motif">母题再创作</button></div></div><div id="story-library-grid" class="library-grid"><div class="library-empty">正在读取备选绘本…</div></div></section><section id="production-board" hidden><div class="board-head"><div><p class="section-kicker">WORKBENCH</p><h2 id="board-title">制作中</h2><p id="board-copy">查看当前进度和缺少的素材。</p></div><div class="board-head-actions"><button id="approve-all-review" class="button primary" type="button" hidden>一键全部通过</button><input id="search" class="search" type="search" placeholder="搜索标题、主题或简介" aria-label="搜索工作台绘本"></div></div><div id="story-grid" class="grid"><div class="empty">正在读取绘本…</div></div></section></section>
+    <section id="review-view" class="review" aria-live="polite"><header class="review-head"><div><h2 id="review-title">—</h2><p id="review-meta" class="review-meta">—</p></div><div class="review-head-actions"><a id="review-preview" class="button primary" href="#">预览当前候选</a><button id="close-review" class="button">← 返回工作台</button></div></header><div class="review-body"><aside class="rail"><p class="rail-title">封面与页面</p><div id="thumbs"></div></aside><section class="canvas"><div class="canvas-tools"><span id="page-label">封面</span><div class="canvas-tool-actions"><label><input id="show-copy" type="checkbox" checked> 显示旁白</label><button id="zoom-page" class="button" type="button">查看原图</button></div></div><div class="page-wrap" id="page-wrap"><div class="page-missing">选择一个绘本开始查看</div></div><div id="page-copy" class="page-copy"></div><div class="pager"><button id="prev-page" class="button">← 上一页</button><span id="page-count">—</span><button id="next-page" class="button primary">下一页 →</button></div></section><aside class="inspect"><h3>旁白试听</h3><p class="inspect-sub">选择声音后播放完整旁白，翻页会跟随当前音轨。</p><div class="audio"><div class="audio-head"><strong>最终旁白</strong><span id="audio-count">—</span></div><section id="audio-voice-panel" class="audio-voice-panel" hidden aria-labelledby="audio-voice-title"><div class="audio-voice-head"><b id="audio-voice-title">选择声音</b><span>点击切换</span></div><div id="audio-voices" class="audio-voices" role="radiogroup" aria-label="选择旁白声音"></div></section><div class="audio-controls"><button id="audio-toggle" class="audio-toggle" type="button" aria-label="播放旁白" disabled>▶</button><input id="audio-seek" class="audio-range" type="range" min="0" max="0" step="0.1" value="0" aria-label="拖动旁白进度" disabled></div><div class="audio-times"><span id="audio-current">0:00</span><span id="audio-total">0:00</span></div><audio id="audio" class="audio-native" preload="metadata"></audio></div><div class="candidate-box"><b id="candidate-revision">候选版本 —</b><span id="candidate-digest">—</span></div></aside></div><div class="decision-bar"><div class="decision-copy"><strong id="decision-title">确认这个版本</strong><span id="decision-subtitle">通过后将立即更新书架，旧版本会继续保留。</span><div id="decision-feedback" class="decision-feedback" hidden></div></div><div id="decision-actions" class="decision-actions"></div></div></section>
+    <footer id="review-mode-footer">家庭专属制作空间 · 决定会绑定准确候选版本并持久保存</footer>
+  </main>
+  <div id="pin-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="pin-title"><div class="modal"><h3 id="pin-title">验证家长身份</h3><p>首次在本次服务会话中提交审核，需要输入状态脚本显示的 6 位家长 PIN。</p><label class="field">家长 PIN<input id="pin-input" type="password" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6 位数字"></label><div class="modal-actions"><button class="button modal-cancel">取消</button><button id="pin-submit" class="button primary">验证</button></div></div></div>
+  <div id="approve-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="approve-title"><div class="modal"><h3 id="approve-title">通过并加入书架？</h3><p>系统会批准当前页面显示的准确候选版本，并立即更新书架。旧的已批准版本不会被覆盖。</p><div id="approve-summary" class="summary-box"></div><div class="modal-actions"><button class="button modal-cancel">再看一下</button><button id="approve-submit" class="button primary">确认通过并上架</button></div></div></div>
+  <div id="batch-approve-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="batch-approve-title"><div class="modal"><h3 id="batch-approve-title">全部通过待审核绘本？</h3><p>将按当前候选版本逐本提交“通过并上架”。如果某本在提交前发生变化，会单独失败，其余绘本仍会继续处理。</p><div id="batch-approve-summary" class="summary-box"></div><div class="modal-actions"><button class="button modal-cancel">再看一下</button><button id="batch-approve-submit" class="button primary">确认全部通过</button></div></div></div>
+  <div id="reject-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="reject-title"><div class="modal"><h3 id="reject-title">退回修改</h3><p>选择问题类型可以让后续返修更准确。备注可以留空。</p><div class="tag-options" id="issue-tags"></div><label class="field">补充说明<textarea id="reject-note" placeholder="例如：第 4 页 Roro 明显变小；第 2 页窗户位置变化。"></textarea></label><div class="modal-actions"><button class="button modal-cancel">取消</button><button id="reject-submit" class="button danger">确认退回</button></div></div></div>
+  <div id="unpublish-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="unpublish-title"><div class="modal"><h3 id="unpublish-title">下架绘本</h3><p id="unpublish-summary">下架只会隐藏当前书架版本，历史版本和制作中的候选都会保留。</p><label class="field">下架原因<textarea id="unpublish-reason" maxlength="2000" placeholder="请填写下架原因，例如：需要重新整理旁白。"></textarea></label><div class="modal-actions"><button class="button modal-cancel">取消</button><button id="unpublish-submit" class="button danger">确认下架</button></div></div></div>
+  <div id="success-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="success-title"><div class="modal"><h3 id="success-title">已经加入书架</h3><p>当前决定与候选版本已保存，书架已经切换到新版本。</p><div class="modal-actions"><button id="success-list" class="button">返回列表</button><a id="success-player" class="button primary" href="/">在书架打开</a></div></div></div>
+  <div id="image-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="image-modal-title"><div class="modal image-modal"><div class="image-modal-head"><h3 id="image-modal-title">查看原图</h3><button class="button modal-cancel" type="button">关闭</button></div><img id="image-modal-preview" alt="绘本候选原图"></div></div>
+  <div id="story-library-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="story-library-modal-title"><div class="modal story-library-modal"><div class="image-modal-head"><h3 id="story-library-modal-title">故事内容</h3><button class="button modal-cancel" type="button">关闭</button></div><p id="story-library-modal-meta"></p><p id="story-library-modal-synopsis"></p><div id="story-library-modal-pages" class="story-detail-list"></div></div></div>
+  <div id="toast" class="toast" role="status"></div>
+  <script>
+    const initialWorkbenchView=location.hash.slice(1);const state={storiesLoaded:false,stories:[],filter:'review',selected:null,item:0,audioUrl:'',audioIndex:0,csrf:'',pendingAction:null,pendingBatch:null,reviewMode:'development',deferStoriesLoad:!['working','review','published','unpublished'].includes(initialWorkbenchView),libraryLoaded:false};const $=id=>document.getElementById(id);const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const statusMap={ready_for_parent:['待审核','review'],changes_requested:['需修改','returned'],published:['已上架',''],authoring:['制作中','working'],ai_review_failed:['需修改','returned'],stale:['需修改','returned'],publishing:['上架中','working'],publish_failed:['上架失败','returned']};const issueOptions=[['character','角色不一致'],['scale','角色相对大小漂移'],['scene','场景不连续'],['composition','构图或底栏问题'],['text','文本需要修改'],['audio','音频需要修改'],['other','其他']];
+    const formatDate=value=>{const date=new Date(value);return Number.isNaN(date.getTime())?'更新时间未知':`更新于 ${date.toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'})}`};const formatTime=seconds=>{const total=Math.max(0,Math.floor(Number(seconds)||0));return `${Math.floor(total/60)}:${String(total%60).padStart(2,'0')}`};function toast(message){const node=$('toast');node.textContent=message;node.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>node.classList.remove('show'),3200)}
+    function renderMetrics(){$('metric-working').textContent=state.stories.filter(s=>s.workflow_state==='production').length;$('metric-review').textContent=state.stories.filter(s=>s.review_state==='ready_for_parent').length;$('metric-published').textContent=state.stories.filter(s=>s.published===true&&s.shelf_status==='published').length;$('metric-unpublished').textContent=state.stories.filter(s=>s.published===true&&s.shelf_status==='unpublished').length}
+    function matches(story){const q=$('search').value.trim().toLowerCase();if(q&&![story.title,story.theme,story.synopsis].join(' ').toLowerCase().includes(q))return false;if(state.filter==='working')return story.workflow_state==='production';if(state.filter==='review')return story.workflow_state==='review' || story.review_state==='ready_for_parent';if(state.filter==='published')return story.published===true;return false}
+    function renderCards(){const items=state.stories.filter(matches);if(!items.length){const empty={working:'暂无制作中的绘本。',review:'暂无待审核绘本。',published:'书架中暂无已上架绘本。'}[state.filter]||'当前没有绘本。';$('story-grid').innerHTML=`<div class="empty">${$('search').value.trim()?'没有找到匹配的绘本，请换个关键词。':empty}</div>`;return}$('story-grid').innerHTML=items.map(s=>{const mapped=statusMap[s.review_state]||['制作中','working'],candidateLabel=s.production_phase==='queued'?'待制作':mapped[0],label=state.filter==='published'?'已上架':candidateLabel,klass=state.filter==='published'?'':mapped[1],hasNewCandidate=s.published&&s.review_state==='ready_for_parent',secondary=hasNewCandidate?'<span class="status review">新版待审核</span>':'',primary=state.filter==='published'?`<a class="button primary" href="/player/${encodeURIComponent(s.id)}?from=workbench&view=published">打开书架版本</a>`:`<button class="button primary open-review" data-id="${escapeHtml(s.id)}">${state.filter==='review'?'开始审核':'查看进度'}</button>`,secondaryAction=s.asset_counts?.audio&&s.candidate_revision?`<a class="button" href="/studio-preview/${encodeURIComponent(s.id)}">预览当前候选</a>`:'<span aria-hidden="true"></span>';return `<article class="story-card"><div class="card-main"><div class="cover">${s.cover_url?`<img src="${escapeHtml(s.cover_url)}" alt="《${escapeHtml(s.title)}》候选封面">`:`<span class="initial" aria-hidden="true">${escapeHtml((s.title||'故').slice(0,1))}</span>`}</div><div class="card-copy"><div class="status-row"><span class="status ${klass}">${label}</span>${secondary}<span class="theme">${escapeHtml(s.theme)}</span></div><h2>${escapeHtml(s.title)}</h2><p class="synopsis">${escapeHtml(s.synopsis||'暂无简介')}</p></div></div><div class="evidence"><span>${s.asset_counts?.page_images||0}/${s.page_count} 页插图</span><span>${s.asset_counts?.audio?'旁白已完成':s.production_phase==='queued'?'待制作':'等待旁白'}</span></div>${state.filter==='working'?`<p class="next-step">${escapeHtml(nextProductionStep(s))}</p>`:''}<div class="card-footer">${primary}${secondaryAction}<span class="updated">${escapeHtml(formatDate(s.updated_at))}</span></div></article>`}).join('');document.querySelectorAll('.open-review').forEach(button=>button.addEventListener('click',()=>openReview(button.dataset.id)))}
+    const STUDIO_READ_TIMEOUT_MS=45000;
+    async function readStudioJSON(url){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),STUDIO_READ_TIMEOUT_MS);try{const response=await fetch(url,{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('读取失败，请点击刷新进度重试。');return await response.json()}catch(error){if(error.name==='AbortError')throw new Error('读取超时，请点击刷新进度重试。');throw error}finally{clearTimeout(timer)}}
+    function nextProductionStep(story){if(story.review_state==='changes_requested')return '下一步：按审核意见返修，再送回审核。';if(story.production_phase==='queued')return '下一步：在 创作客户端 中继续制作清单，开始图文与旁白制作。';if(!story.asset_counts?.has_cover||Number(story.asset_counts?.page_images||0)<story.page_count)return '下一步：补齐封面与插图，检查人物和场景连续性。';if(!story.asset_counts?.audio)return '下一步：同步朗读稿，生成并检查旁白。';return '下一步：完成图文与声音复核，准备最终审核。'}
+    async function loadStories(){const data=await readStudioJSON('/api/studio/stories');state.storiesLoaded=true;state.stories=Array.isArray(data.stories)?data.stories:[];if(!state.viewInitialized){state.viewInitialized=true;window.initializeWorkbenchView?.()}renderMetrics();$('workbench-sync').textContent='进度已更新 · '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});window.refreshBatchApprovalButton?.();const activeView=location.hash.slice(1);if((activeView==='published'||activeView==='unpublished')&&typeof window.showWorkbenchView==='function')window.showWorkbenchView(activeView,{updateHash:false});else renderCards()}function reviewItems(){if(!state.selected)return[];return[{page:0,scene:'封面',image_url:state.selected.cover_url,narration:'',asset_state:state.selected.cover_url?'generated':'missing'},...(state.selected.pages||[])]}
+    async function openReview(id){try{const response=await fetch(`/api/studio/stories/${encodeURIComponent(id)}`,{cache:'no-store'});if(!response.ok)throw new Error();$('audio').pause();state.selected=await response.json();state.returnView=state.filter||'candidates';state.item=0;configureAudio();$('close-review').textContent=`← 返回${{candidates:'备选',working:'制作中',review:'待审核',published:'已上架'}[state.returnView]||'工作台'}`;$('dashboard-head').style.display='none';$('library-view').style.display='none';$('review-view').classList.add('open');renderReview();window.scrollTo({top:0,behavior:'auto'})}catch{toast('无法读取这个绘本，请刷新后重试。')}}
+    function scrollActiveThumb(){requestAnimationFrame(()=>document.querySelector('.thumb.active')?.scrollIntoView({block:'nearest',inline:'center'}))}
+    function openImageModal(){const item=reviewItems()[state.item];if(!item?.image_url)return;$('image-modal-title').textContent=item.page?`第 ${item.page} 页原图`:'封面原图';$('image-modal-preview').src=item.image_url;$('image-modal-preview').alt=item.scene||$('image-modal-title').textContent;openModal('image-modal')}
+    function renderSpokenLines(item){if(item.spoken_lines?.length)return item.spoken_lines.map(line=>`<p class="spoken-line">${escapeHtml(line.spoken_text)}</p>`).join('');const dialogue=item.dialogue?.length?item.dialogue.map(line=>`<p class="spoken-line"><b>${escapeHtml(line.speaker)}：</b>${escapeHtml(line.text)}</p>`).join(''):'';return `<div class="spoken-pending">最终朗读稿尚未生成，以下为故事正文草稿。</div><p class="spoken-line">${escapeHtml(item.narration||'暂无正文')}</p>${dialogue}${item.interaction?`<p class="spoken-line">${escapeHtml(item.interaction)}</p>`:''}`}
+    function renderReview(){const story=state.selected;if(!story)return;const items=reviewItems(),item=items[state.item]||{},[label]=statusMap[story.review_state]||['制作中'];$('review-title').textContent=story.title;$('review-meta').textContent=`${label} · ${story.page_count} 页 · ${story.theme}`;$('review-preview').href=`/studio-preview/${encodeURIComponent(story.id)}`;$('page-label').textContent=item.page?`第 ${item.page} 页 · ${item.scene||'未命名场景'}`:'封面';$('page-count').textContent=`${state.item+1} / ${items.length}`;$('prev-page').disabled=state.item===0;$('next-page').disabled=state.item>=items.length-1;$('zoom-page').disabled=!item.image_url;$('thumbs').innerHTML=items.map((p,index)=>`<button type="button" class="thumb ${index===state.item?'active':''}" data-item="${index}" aria-current="${index===state.item?'page':'false'}">${p.image_url?`<img src="${escapeHtml(p.image_url)}" alt="${index===0?'封面':`第${p.page}页`}缩略图">`:'<img alt="暂无图片">'}<span><b>${index===0?'封面':`第 ${p.page} 页`}</b><small>${p.asset_state==='generated'?'候选已锁定':'等待资产'}</small></span></button>`).join('');document.querySelectorAll('.thumb').forEach(button=>button.addEventListener('click',()=>{state.item=Number(button.dataset.item);renderReview()}));$('page-wrap').classList.toggle('has-image',!!item.image_url);$('page-wrap').innerHTML=item.image_url?`<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.scene||'绘本画面')}">`:'<div class="page-missing">本项暂无候选图片</div>';$('page-copy').style.display=$('show-copy').checked&&item.page?'block':'none';$('page-copy').innerHTML=item.page?`<h3>本页实际朗读</h3>${renderSpokenLines(item)}`:'';$('candidate-revision').textContent=`候选版本 ${story.candidate_revision||'—'}`;$('candidate-digest').textContent=story.package_digest||'尚无内容摘要';renderDecisionBar();scrollActiveThumb()}
+    function renderDecisionBar(){const s=state.selected;if(!s)return;const actions=$('decision-actions');if(s.review_state==='ready_for_parent'){$('decision-title').textContent='等待你的最终决定';$('decision-subtitle').textContent='通过后立即更新书架；退回后继续修改。';actions.innerHTML='<button id="reject-button" class="button reject">退回修改</button><button id="approve-button" class="button primary">通过并上架</button>';$('reject-button').onclick=()=>requestAction('reject');$('approve-button').onclick=()=>requestAction('approve');return}if(s.review_state==='publish_failed'){$('decision-title').textContent='上次发布没有完成';$('decision-subtitle').textContent='旧书架版本仍然可用，可以安全重试。';actions.innerHTML='<button id="approve-button" class="button primary">重试上架</button>';$('approve-button').onclick=()=>requestAction('approve');return}if(s.review_state==='published'){$('decision-title').textContent='当前候选已上架';$('decision-subtitle').textContent='决定和版本摘要已经持久保存。';actions.innerHTML=`<a class="button primary" href="/player/${encodeURIComponent(s.id)}">在书架打开</a>`;return}if(s.review_state==='changes_requested'){$('decision-title').textContent='修改意见已保存';$('decision-subtitle').textContent='新候选准备好后会重新进入待审核列表。';actions.innerHTML='';return}$('decision-title').textContent='候选仍在准备';$('decision-subtitle').textContent=s.review_state==='stale'?'候选内容发生变化，准备完成后会重新开放审核。':'候选准备完成后才能提交最终决定。';actions.innerHTML=''}
+    function captureAudioPosition(option,audio){const duration=Number.isFinite(audio.duration)?audio.duration:0,overall=duration?audio.currentTime/duration:0,timeline=Array.isArray(option?.page_timeline)?option.page_timeline:[];if(!timeline.length)return{overall};const first=timeline[0];if(audio.currentTime<Number(first.start_seconds))return{page:0,progress:Number(first.start_seconds)>0?audio.currentTime/Number(first.start_seconds):0,overall};const timing=[...timeline].reverse().find(item=>audio.currentTime>=Number(item.start_seconds))||first;const start=Number(timing.start_seconds)||0,end=Number(timing.end_seconds)||start;return{page:Number(timing.page),progress:end>start?Math.max(0,Math.min(1,(audio.currentTime-start)/(end-start))):0,overall}}
+    function restoreAudioPosition(option,position,duration){const timeline=Array.isArray(option?.page_timeline)?option.page_timeline:[];if(position.page===0&&timeline.length){return Math.max(0,Math.min(Number(timeline[0].start_seconds)||0,(Number(timeline[0].start_seconds)||0)*position.progress))}const timing=timeline.find(item=>Number(item.page)===position.page);if(timing){const start=Number(timing.start_seconds)||0,end=Number(timing.end_seconds)||start;return start+Math.max(0,end-start)*position.progress}return Math.max(0,duration*(position.overall||0))}
+    function configureAudio(){const options=state.selected?.audio_options||[],panel=$('audio-voice-panel'),voices=$('audio-voices');$('audio-count').textContent=options.length?`${options.length} 个声音`:'暂无旁白';voices.innerHTML=options.map((option,index)=>{const mark=option.mark||(option.label||'声').slice(0,1);return `<button type="button" class="audio-voice-card" role="radio" aria-checked="${index===0}" tabindex="${index===0?0:-1}" aria-label="${escapeHtml(option.label)}" data-index="${index}" data-voice="${escapeHtml(option.voice)}"><span class="audio-voice-orb" aria-hidden="true">${escapeHtml(mark)}</span><span class="audio-voice-copy"><b>${escapeHtml(option.label)}</b></span></button>`}).join('');panel.hidden=options.length<2;state.audioIndex=0;setReviewAudio(0,false)}
+    function setReviewAudio(optionIndex,preserve=true){const options=state.selected?.audio_options||[],option=options[optionIndex],audio=$('audio'),currentOption=options[state.audioIndex],wasPlaying=preserve&&!audio.paused,position=captureAudioPosition(currentOption,audio);audio.pause();state.audioIndex=optionIndex;state.audioUrl=option?.url||'';audio.src=state.audioUrl;audio.load();$('audio-voices').querySelectorAll('.audio-voice-card').forEach((card,index)=>{const selected=index===optionIndex;card.setAttribute('aria-checked',String(selected));card.tabIndex=selected?0:-1});$('audio-toggle').disabled=!state.audioUrl;$('audio-seek').disabled=true;if(preserve&&state.audioUrl)audio.addEventListener('loadedmetadata',()=>{if(Number.isFinite(audio.duration)&&audio.duration>0)audio.currentTime=Math.min(restoreAudioPosition(option,position,audio.duration),Math.max(0,audio.duration-.05));if(wasPlaying)audio.play().catch(()=>{});updateAudio()},{once:true});updateAudio()}
+    function updateAudio(){const audio=$('audio'),seek=$('audio-seek'),duration=Number.isFinite(audio.duration)?audio.duration:0,current=Math.min(audio.currentTime||0,duration||0),percent=duration?current/duration*100:0;$('audio-current').textContent=formatTime(current);$('audio-total').textContent=formatTime(duration);seek.style.setProperty('--progress',`${percent}%`);seek.max=String(duration);seek.value=String(current);seek.disabled=!state.audioUrl||duration<=0;seek.setAttribute('aria-valuetext',`${formatTime(current)} / ${formatTime(duration)}`);$('audio-toggle').textContent=audio.paused?'▶':'Ⅱ';$('audio-toggle').setAttribute('aria-label',audio.paused?'播放旁白':'暂停旁白')}
+    function seekReviewAudio(value){const audio=$('audio'),duration=Number.isFinite(audio.duration)?audio.duration:0;if(!duration)return;audio.currentTime=Math.max(0,Math.min(duration,Number(value)||0));updateAudio()}
+    function seekReviewAudioFromPointer(event){const seek=$('audio-seek');if(seek.disabled)return;const rect=seek.getBoundingClientRect(),ratio=Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width));seekReviewAudio(Number(seek.max)*ratio)}
+    function seekReviewAudioByKey(event){const audio=$('audio'),duration=Number.isFinite(audio.duration)?audio.duration:0;if(!duration)return;const steps={ArrowLeft:-5,ArrowDown:-5,ArrowRight:5,ArrowUp:5,PageDown:-15,PageUp:15};let target;if(event.key==='Home')target=0;else if(event.key==='End')target=duration;else if(event.key in steps)target=audio.currentTime+steps[event.key];else return;event.preventDefault();seekReviewAudio(target)}
+    function renderReviewMode(){const development=state.reviewMode==='development';$('review-mode-copy').textContent=development?'当前为开发期简化流程：提交决定时不要求家长 PIN，决定仍绑定当前候选版本。':'请查看完整候选，并由家长验证后做最终决定。';$('review-mode-footer').textContent=development?'家庭专属制作空间 · 开发期免身份验证 · 决定仍绑定准确候选版本':'家庭专属制作空间 · 家长决定会绑定准确候选版本并持久保存'}function makeRequestId(){const webCrypto=globalThis.crypto;if(typeof webCrypto?.randomUUID==='function')return webCrypto.randomUUID();if(typeof webCrypto?.getRandomValues==='function'){const bytes=new Uint8Array(16);webCrypto.getRandomValues(bytes);bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;const hex=Array.from(bytes,value=>value.toString(16).padStart(2,'0'));return `${hex.slice(0,4).join('')}-${hex.slice(4,6).join('')}-${hex.slice(6,8).join('')}-${hex.slice(8,10).join('')}-${hex.slice(10,16).join('')}`}return `request-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,14)}`}async function authStatus(){const response=await fetch('/api/studio/auth/status',{cache:'no-store'}),data=await response.json();state.csrf=data.csrf_token||'';state.reviewMode=data.review_mode||'pin';renderReviewMode();return!!data.authenticated}async function requestAction(action){state.pendingAction=action;if(await authStatus())openActionModal(action);else{openModal('pin-modal');setTimeout(()=>$('pin-input').focus(),50)}}function openActionModal(action){if(action==='approve'){const s=state.selected;$('approve-summary').innerHTML=`<b>${escapeHtml(s.title)}</b><br>${s.page_count} 页插图 · 完整文本 · 最终旁白<br>版本：${escapeHtml(s.candidate_revision)}<br>摘要：${escapeHtml(s.package_digest)}`;openModal('approve-modal')}else{renderIssueTags();openModal('reject-modal')}}function renderIssueTags(){$('issue-tags').innerHTML=issueOptions.map(([value,label])=>`<label class="tag-option"><input type="checkbox" value="${value}"><span>${label}</span></label>`).join('');$('reject-note').value=''}function openModal(id){$(id).classList.add('open')}function closeModals(){document.querySelectorAll('.modal-backdrop').forEach(node=>node.classList.remove('open'))}
+    async function login(){const pin=$('pin-input').value.trim();if(!/^\d{6}$/.test(pin)){toast('请输入 6 位家长 PIN。');return}$('pin-submit').disabled=true;try{const response=await fetch('/api/studio/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})}),data=await response.json();if(!response.ok)throw new Error(data.error?.message||'验证失败');state.csrf=data.csrf_token;const action=state.pendingAction;closeModals();$('pin-input').value='';if(action==='pdf'&&window.exportCandidatePdf){state.pendingAction=null;window.exportCandidatePdf()}else if(action==='library'&&window.saveStoryLibrarySelection){state.pendingAction=null;window.saveStoryLibrarySelection()}else if(action==='library-disposition'&&window.resumeStoryLibraryDisposition){state.pendingAction=null;window.resumeStoryLibraryDisposition()}else if(action==='shelf'&&window.resumeShelfAction){state.pendingAction=null;window.resumeShelfAction()}else if(action==='approve-all'&&window.resumeBatchApproval){state.pendingAction=null;window.resumeBatchApproval()}else openActionModal(action)}catch(error){toast(error.message)}finally{$('pin-submit').disabled=false}}
+    async function submitDecision(decision){const s=state.selected;if(!s)return;const button=decision==='approved'?$('approve-submit'):$('reject-submit'),issueTags=decision==='changes_requested'?[...document.querySelectorAll('#issue-tags input:checked')].map(input=>input.value):[],note=decision==='changes_requested'?$('reject-note').value.trim():'';if(decision==='changes_requested'&&!issueTags.length&&!note){toast('请至少选择一个问题类型，或填写补充说明。');return}button.disabled=true;try{const response=await fetch(`/api/studio/stories/${encodeURIComponent(s.id)}/decision`,{method:'POST',headers:{'Content-Type':'application/json','X-Roro-CSRF':state.csrf},body:JSON.stringify({decision,candidate_revision:s.candidate_revision,package_digest:s.package_digest,request_id:makeRequestId(),note,issue_tags:issueTags})}),data=await response.json();if(!response.ok)throw new Error(data.error?.message||'提交失败');closeModals();await refreshSelected();await loadStories();if(decision==='approved'){$('success-player').href=data.player_url||`/player/${encodeURIComponent(s.id)}`;openModal('success-modal')}else{toast('修改意见已保存。')}}catch(error){toast(error.message);if(/变化|失效|刷新/.test(error.message))await refreshSelected()}finally{button.disabled=false}}
+    async function refreshSelected(){if(!state.selected)return;const response=await fetch(`/api/studio/stories/${encodeURIComponent(state.selected.id)}`,{cache:'no-store'});if(response.ok){state.selected=await response.json();renderReview()}}function closeReview(){$('audio').pause();$('review-view').classList.remove('open');$('dashboard-head').style.display='';$('library-view').style.display='';window.showWorkbenchView?.(state.returnView||'candidates',{updateHash:false});window.scrollTo({top:0,behavior:'auto'})}
+    let audioSeekDragging=false;$('search').addEventListener('input',renderCards);document.querySelectorAll('.filter').forEach(button=>button.addEventListener('click',()=>{state.filter=button.dataset.filter;document.querySelectorAll('.filter').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});renderCards()}));$('close-review').addEventListener('click',closeReview);$('prev-page').addEventListener('click',()=>{if(state.item>0){state.item--;renderReview()}});$('next-page').addEventListener('click',()=>{if(state.item<reviewItems().length-1){state.item++;renderReview()}});$('show-copy').addEventListener('change',renderReview);$('zoom-page').addEventListener('click',openImageModal);$('page-wrap').addEventListener('click',openImageModal);$('audio').addEventListener('loadedmetadata',updateAudio);$('audio').addEventListener('timeupdate',updateAudio);$('audio').addEventListener('play',updateAudio);$('audio').addEventListener('pause',updateAudio);$('audio').addEventListener('error',()=>toast('旁白加载失败，请切换声音或刷新后重试。'));$('audio-voices').addEventListener('click',event=>{const card=event.target.closest('.audio-voice-card');if(card)setReviewAudio(Number(card.dataset.index),true)});$('audio-voices').addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;const options=state.selected?.audio_options||[];if(options.length<2)return;event.preventDefault();const current=Number(event.target.closest('.audio-voice-card')?.dataset.index||0),next=(current+(event.key==='ArrowRight'?1:-1)+options.length)%options.length;const card=$('audio-voices').querySelector(`[data-index="${next}"]`);card?.focus();setReviewAudio(next,true)});$('audio-toggle').addEventListener('click',()=>{const audio=$('audio');if(audio.paused)audio.play().catch(()=>toast('旁白暂时无法播放，请刷新后重试。'));else audio.pause()});$('audio-seek').addEventListener('input',event=>seekReviewAudio(event.currentTarget.value));$('audio-seek').addEventListener('change',event=>seekReviewAudio(event.currentTarget.value));$('audio-seek').addEventListener('keydown',seekReviewAudioByKey);$('audio-seek').addEventListener('pointerdown',event=>{audioSeekDragging=true;event.currentTarget.setPointerCapture?.(event.pointerId);seekReviewAudioFromPointer(event)});$('audio-seek').addEventListener('pointermove',event=>{if(audioSeekDragging)seekReviewAudioFromPointer(event)});['pointerup','pointercancel'].forEach(type=>$('audio-seek').addEventListener(type,()=>{audioSeekDragging=false}));$('pin-submit').addEventListener('click',login);$('pin-input').addEventListener('keydown',event=>{if(event.key==='Enter')login()});$('approve-submit').addEventListener('click',()=>submitDecision('approved'));$('reject-submit').addEventListener('click',()=>submitDecision('changes_requested'));$('success-list').addEventListener('click',()=>{closeModals();closeReview()});document.querySelectorAll('.modal-cancel').forEach(button=>button.addEventListener('click',closeModals));document.querySelectorAll('.modal-backdrop').forEach(backdrop=>backdrop.addEventListener('click',event=>{if(event.target===backdrop)closeModals()}));document.addEventListener('keydown',event=>{if(event.key==='Escape')closeModals()});authStatus().catch(()=>renderReviewMode());if(!state.deferStoriesLoad)loadStories().catch(()=>{$('workbench-sync').textContent='连接失败，请点击刷新进度重试。';$('story-grid').innerHTML='<div class="error">制作状态暂不可用，请点击顶部“刷新进度”重试。</div>'});
+  </script>
+  <script>
+    (() => {
+      const libraryState = { items: [], filter: 'all' };
+      const sourceLabels = { original_adventure: '原创冒险', daily_life: '日常改编', classic_motif: '母题再创作' };
+      const stateLabels = { ready: '制作', discarded: '已丢弃', production: '制作中', revision: '返修中', review: '待最终审核', published: '已上架' };
+      let pendingDisposition = null;
+      function renderLibrary() {
+        const query = $('library-search').value.trim().toLowerCase();
+        const items = libraryState.items.filter(item => { const stateMatch = libraryState.filter === 'discarded' ? item.discarded : !item.discarded && !item.selected && (libraryState.filter === 'all' || item.source_mode === libraryState.filter); return stateMatch && (!query || [item.title, item.theme, item.synopsis].join(' ').toLowerCase().includes(query)); });
+        if (!items.length) { $('story-library-grid').innerHTML = `<div class="library-empty">${libraryState.filter === 'discarded' ? '没有已丢弃的故事。' : '当前没有待选择的完整故事。已加入制作的故事请到“制作进度”查看。'}</div>`; return; }
+        $('story-library-grid').innerHTML = items.map(item => `<article class="library-card ${item.discarded ? 'discarded' : ''}"><div class="library-card-main"><div class="library-card-cover">${item.cover_url ? `<img src="${escapeHtml(item.cover_url)}" alt="《${escapeHtml(item.title)}》封面">` : `<span class="initial" aria-hidden="true">${escapeHtml((item.title || '故').slice(0, 1))}</span>`}</div><div class="library-card-body"><div class="library-card-title-row"><div><span class="source-pill">${escapeHtml(sourceLabels[item.source_mode] || '原创故事')}</span><span class="source-pill">${item.page_count} 页</span><h3>${escapeHtml(item.title)}</h3></div><span class="library-state">${escapeHtml(stateLabels[item.library_state] || item.status)}</span></div></div></div><p class="library-desc">${escapeHtml(item.synopsis || '暂无简介')}</p><div class="library-card-actions"><button type="button" class="button library-detail" data-library-detail="${escapeHtml(item.id)}">查看</button>${item.discarded ? `<button type="button" class="button primary" data-library-restore="${escapeHtml(item.id)}">恢复</button><span></span>` : `<button type="button" class="button primary" data-library-start="${escapeHtml(item.id)}">制作</button><button type="button" class="button discard" data-library-discard="${escapeHtml(item.id)}">丢弃</button>`}</div></article>`).join('');
+        document.querySelectorAll('[data-library-start]').forEach(button => button.addEventListener('click', () => startProduction(button.dataset.libraryStart)));
+        document.querySelectorAll('[data-library-discard]').forEach(button => button.addEventListener('click', () => requestDisposition(button.dataset.libraryDiscard, 'discard')));
+        document.querySelectorAll('[data-library-restore]').forEach(button => button.addEventListener('click', () => requestDisposition(button.dataset.libraryRestore, 'restore')));
+        document.querySelectorAll('[data-library-detail]').forEach(button => button.addEventListener('click', () => openLibraryDetail(button.dataset.libraryDetail)));
+      }
+      async function openLibraryDetail(id) {
+        const requestId = (state.detailRequestId || 0) + 1;
+        state.detailRequestId = requestId;
+        $('story-library-modal-title').textContent = '故事内容';
+        $('story-library-modal-meta').textContent = '';
+        $('story-library-modal-synopsis').textContent = '';
+        $('story-library-modal-pages').innerHTML = '<div class="library-empty">正在展开故事内容…</div>';
+        openModal('story-library-modal');
+        try {
+          const item = await readStudioJSON('/api/studio/story-library/' + encodeURIComponent(id));
+          if (state.detailRequestId !== requestId) return;
+          $('story-library-modal-title').textContent = item.title || '故事内容';
+          $('story-library-modal-meta').textContent = item.narration_status === 'needs_attention' ? '朗读稿需要修正' : item.narration_status === 'ready' ? '朗读稿已同步' : '朗读稿待生成';
+          $('story-library-modal-synopsis').textContent = item.cover_spoken_text ? `封面会先朗读：${item.cover_spoken_text}` : (item.synopsis || '');
+          $('story-library-modal-pages').innerHTML = (item.pages || []).map(page => `<div class="story-detail-page"><b>第 ${escapeHtml(page.page)} 页${page.scene ? ' · ' + escapeHtml(page.scene) : ''}</b><span class="spoken-label">${page.spoken_lines?.length?'实际会听到':'故事正文草稿'}</span>${renderSpokenLines(page)}</div>`).join('');
+        } catch (error) {
+          if (state.detailRequestId === requestId) $('story-library-modal-pages').innerHTML = `<div class="library-empty">${escapeHtml(error.message)}</div>`;
+        }
+      }
+      async function loadLibrary() { const data = await readStudioJSON('/api/studio/story-library'); libraryState.items = Array.isArray(data.items) ? data.items : []; state.libraryLoaded=true; $('metric-candidates').textContent = libraryState.items.filter(item => !item.discarded && !item.selected).length; $('metric-discarded').textContent = libraryState.items.filter(item => item.discarded).length; $('library-source-summary').textContent = `${data.source_summary?.generation || ''}。${data.source_summary?.library || ''}。`; renderLibrary(); if(state.deferStoriesLoad){$('workbench-sync').textContent='备选绘本已加载 · 后台补充制作进度';state.deferStoriesLoad=false;loadStories().catch(error=>{$('workbench-sync').textContent=error.message;});} }
+       let pendingSelectionId = null, selectionBusy = false;
+       async function ensureLibraryWriteAuth() { return await authStatus(); }
+       async function startProduction(id) { if(selectionBusy)return; pendingSelectionId=id; await saveSelection(); }
+      async function saveSelection() {
+        if(selectionBusy || !pendingSelectionId)return;
+        selectionBusy=true;
+        document.querySelectorAll('[data-library-start]').forEach(button=>button.disabled=true);
+        try {
+           if(!(await ensureLibraryWriteAuth())){state.pendingAction='library';openModal('pin-modal');return;}
+          const ids=new Set(libraryState.items.filter(item=>item.selected&&!item.discarded).map(item=>item.id));
+          ids.add(pendingSelectionId);
+          const response=await fetch('/api/studio/story-library/selection',{method:'POST',headers:{'Content-Type':'application/json','X-Roro-CSRF':state.csrf},body:JSON.stringify({story_ids:[...ids]})});
+          const data=await response.json();if(!response.ok)throw new Error(data.error?.message||'制作失败');
+           const completedId=pendingSelectionId;
+           const localItem=libraryState.items.find(item=>item.id===completedId);
+           if(localItem)localItem.selected=true;
+           pendingSelectionId=null;
+           renderLibrary();
+           window.showWorkbenchView?.('working');
+           toast('已加入清单。请在创作客户端中继续制作，完成后刷新进度。');
+           Promise.allSettled([loadLibrary(),loadStories()]).then(results=>{if(results.some(result=>result.status==='rejected'))$('workbench-sync').textContent='部分进度未能更新，请点击刷新进度重试。';});
+        }catch(error){toast(error.message)}finally{selectionBusy=false;document.querySelectorAll('[data-library-start]').forEach(button=>button.disabled=false)}
+      }
+       async function requestDisposition(storyId, action) { pendingDisposition = { storyId, action }; if (!(await ensureLibraryWriteAuth())) { state.pendingAction = 'library-disposition'; openModal('pin-modal'); setTimeout(() => $('pin-input').focus(), 50); return; } await applyDisposition(); }
+       async function applyDisposition() { if (!pendingDisposition) return; const { storyId, action } = pendingDisposition; try { const response = await fetch('/api/studio/story-library/disposition', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Roro-CSRF': state.csrf }, body: JSON.stringify({ story_id: storyId, action }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error?.message || '备选故事操作失败'); const localItem=libraryState.items.find(item=>item.id===storyId); if(localItem){localItem.discarded=action==='discard';localItem.selected=false;} pendingDisposition = null; renderLibrary(); toast(action === 'discard' ? '已移到独立的“已丢弃”区域，需要时可以恢复。' : '故事已恢复到备选故事。'); Promise.allSettled([loadLibrary(), loadStories(), window.refreshTrash?.()]).then(results=>{if(results.some(result=>result.status==='rejected'))$('workbench-sync').textContent='部分进度未能更新，请点击刷新进度重试。';}); } catch (error) { toast(error.message); } }
+      function switchView(view) { document.querySelectorAll('.workflow-tab').forEach(button => { const active = button.dataset.view === view; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); }); const libraryView = view === 'candidates' || view === 'discarded'; $('candidate-library').hidden = !libraryView; $('production-board').hidden = libraryView; if (libraryView) { const discarded = view === 'discarded'; libraryState.filter = discarded ? 'discarded' : 'all'; $('library-kicker').textContent = discarded ? 'DISCARDED STORIES' : 'STORY CANDIDATES'; $('story-library-title').textContent = discarded ? '已丢弃的故事' : '挑选下一批绘本'; $('story-library-copy').textContent = discarded ? '这里单独保存已丢弃的故事草稿，不会进入制作；需要时可以恢复到备选故事。' : '这里只显示尚未制作、也未丢弃的完整故事。点击“制作”后会立即移入制作进度。'; $('source-guide').hidden = discarded; $('library-source-summary').hidden = discarded; $('library-toolbar').hidden = discarded; document.querySelectorAll('.library-filter').forEach((item,index) => item.classList.toggle('active', index === 0)); renderLibrary(); return; } state.filter = view; const copy = { working: ['制作进度', '只展示已经制作、正在生成或返修的绘本。这里查看资产进度，不做最终上架决定。'], review: ['最终审核', '只展示图文、旁白和质量检查全部完成的候选；在这里退回修改或通过上架。'], published: ['已上架', '查看已经发布到本地家庭书架的不可变绘本版本。'] }[view]; $('board-title').textContent = copy[0]; $('board-copy').textContent = copy[1]; renderCards(); }
+      $('library-search').addEventListener('input', renderLibrary); document.querySelectorAll('.library-filter').forEach(button => button.addEventListener('click', () => { libraryState.filter = button.dataset.libraryFilter; document.querySelectorAll('.library-filter').forEach(item => item.classList.toggle('active', item === button)); renderLibrary(); })); document.querySelectorAll('.workflow-tab').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view))); window.reloadStoryLibrary = loadLibrary; window.saveStoryLibrarySelection = saveSelection; window.resumeStoryLibraryDisposition = applyDisposition; const loadLibraryWithError = () => loadLibrary().catch(error => { $('story-library-grid').innerHTML = `<div class="library-empty">${escapeHtml(error.message)}</div>`; }); if(state.deferStoriesLoad)loadLibraryWithError();else setTimeout(loadLibraryWithError,0);
+    })();
+  </script>
+  <script>
+    (() => {
+      const originalRenderReview = window.renderReview;
+      function installPdfActions() {
+        const box = document.querySelector('.candidate-box');
+        if (!box || !state.selected) return;
+        let actions = document.getElementById('pdf-actions');
+        if (!actions) {
+          actions = document.createElement('div');
+          actions.id = 'pdf-actions';
+          actions.className = 'pdf-actions';
+          actions.innerHTML = '<button id="export-pdf" class="button" type="button">导出 PDF</button><a id="pdf-link" class="button" href="#" target="_blank" rel="noopener" hidden>打开 PDF</a>';
+        }
+        if (actions.parentElement !== box.parentElement || actions.previousElementSibling !== box) box.after(actions);
+        const button = document.getElementById('export-pdf');
+        const link = document.getElementById('pdf-link');
+        if (state.selected.pdf_url) {
+          link.href = state.selected.pdf_url;
+          link.hidden = false;
+          if (button.textContent !== '重新导出 PDF') button.textContent = '重新导出 PDF';
+        } else {
+          link.hidden = true;
+          if (button.textContent !== '导出 PDF') button.textContent = '导出 PDF';
+        }
+        button.disabled = !state.selected.candidate_revision || !state.selected.ai_review_passed;
+        button.onclick = requestPdfExport;
+      }
+      async function exportPdf() {
+        const story = state.selected;
+        if (!story) return;
+        const button = document.getElementById('export-pdf');
+        if (button) { button.disabled = true; button.textContent = '正在排版…'; }
+        try {
+          const response = await fetch(`/api/studio/stories/${encodeURIComponent(story.id)}/pdf`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Roro-CSRF': state.csrf }, body: '{}' });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error?.message || 'PDF 导出失败');
+          story.pdf_url = data.pdf_url;
+          story.asset_counts = { ...(story.asset_counts || {}), has_pdf: true };
+          installPdfActions();
+          toast(data.cached ? 'PDF 已存在，已打开当前候选版本。' : 'PDF 已生成，可以打开查看。');
+          window.open(data.pdf_url, '_blank', 'noopener');
+        } catch (error) {
+          toast(error.message);
+          installPdfActions();
+        }
+      }
+      async function requestPdfExport() {
+        state.pendingAction = 'pdf';
+        if (await authStatus()) {
+          state.pendingAction = null;
+          exportPdf();
+        } else {
+          openModal('pin-modal');
+          setTimeout(() => document.getElementById('pin-input').focus(), 50);
+        }
+      }
+      window.exportCandidatePdf = exportPdf;
+      window.renderReview = function() { originalRenderReview(); installPdfActions(); };
+      const observer = new MutationObserver(installPdfActions);
+      observer.observe(document.body, { childList: true, subtree: true });
+    })();
+  </script>
+  <script>
+    // Keep the latest parent feedback visible when reopening a returned story.
+    window.renderDecisionBar = function() {
+      const s = state.selected;
+      if (!s) return;
+      const actions = $('decision-actions');
+      const feedback = $('decision-feedback');
+      feedback.hidden = true;
+      feedback.textContent = '';
+      if (s.review_state === 'changes_requested') {
+        $('decision-title').textContent = '修改意见已保存';
+        $('decision-subtitle').textContent = '新候选准备好后会重新进入待审核列表。';
+        const current = s.parent_review?.current || {};
+        const tags = Array.isArray(current.issue_tags) && current.issue_tags.length
+          ? `问题类型：${current.issue_tags.map(tag => (issueOptions.find(item => item[0] === tag) || [tag, tag])[1]).join('、')}。`
+          : '';
+        const note = String(current.note || '').trim();
+        if (tags || note) {
+          feedback.textContent = `${tags}${note ? `家长备注：${note}` : ''}`;
+          feedback.hidden = false;
+        }
+        actions.innerHTML = '';
+        return;
+      }
+      // Preserve the existing action behavior for all other states.
+      if (s.review_state === 'publish_failed') {
+        $('decision-title').textContent='上次上架未完成';$('decision-subtitle').textContent='请重试上架；已有书架版本仍然保留。';
+        actions.innerHTML='<button id="approve-button" class="button primary">重试上架</button>';
+        $('approve-button').onclick=()=>requestAction('approve');return;
+      }
+      if (s.review_state === 'ready_for_parent') {
+        $('decision-title').textContent = '等待你的最终决定';
+        $('decision-subtitle').textContent = '通过后立即更新书架；退回后继续修改。';
+        actions.innerHTML = '<button id="reject-button" class="button reject">退回修改</button><button id="approve-button" class="button primary">通过并上架</button>';
+        $('reject-button').onclick = () => requestAction('reject');
+        $('approve-button').onclick = () => requestAction('approve');
+        return;
+      }
+      if (s.review_state === 'published') {
+        $('decision-title').textContent = '当前候选已上架';
+        $('decision-subtitle').textContent = '决定和版本摘要已经持久保存。';
+        actions.innerHTML = `<a class="button primary" href="/player/${encodeURIComponent(s.id)}">在书架打开</a>`;
+        return;
+      }
+      $('decision-title').textContent = '候选仍在准备';
+      $('decision-subtitle').textContent = '候选准备完成后才能提交最终决定。';
+      actions.innerHTML = '';
+    };
+  </script>
+  <script>
+    (() => {
+      const trash = { open: false, pending: null };
+      window.libraryState = window.libraryState || { filter: 'all' };
+      const button = document.createElement('button');
+      document.querySelector('.metrics')?.style.setProperty('grid-template-columns', 'repeat(3, minmax(0, 1fr))');
+      button.id = 'trash-toggle';
+      button.className = 'button';
+      button.type = 'button';
+      button.setAttribute('aria-pressed', 'false');
+      button.textContent = '垃圾桶（0）';
+      document.querySelector('.source-library-head').appendChild(button);
+      document.querySelectorAll('.workflow-tab').forEach(item => { if (item.dataset.view === 'discarded') item.remove(); });
+      let discardedMetric = document.getElementById('metric-discarded');
+      if (!discardedMetric) { discardedMetric = document.createElement('strong'); discardedMetric.id = 'metric-discarded'; discardedMetric.hidden = true; document.body.appendChild(discardedMetric); }
+      discardedMetric.closest('.metric')?.setAttribute('hidden', '');
+      const escapeText = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      async function loadTrash() {
+        const response = await fetch('/api/studio/story-library', { cache: 'no-store' });
+        if (!response.ok) return;
+        const data = await response.json();
+        const items = (data.items || []).filter(item => item.discarded).slice(0, 6);
+        button.textContent = trash.open ? '返回备选故事' : `垃圾桶（${items.length}）`;
+        if (!trash.open) return;
+        const grid = document.getElementById('story-library-grid');
+        grid.innerHTML = items.length ? items.map(item => `<article class="library-card discarded"><div class="library-card-main"><div class="library-card-cover"><span class="initial">${escapeText((item.title || '故').slice(0, 1))}</span></div><div class="library-card-body"><div class="library-card-title-row"><div><span class="source-pill">${escapeText(item.source_mode || '故事')}</span><h3>${escapeText(item.title)}</h3></div><span class="library-state">已丢弃</span></div></div></div><p class="library-desc">${escapeText(item.synopsis || '暂无简介')}</p><div class="library-card-actions"><button class="button library-detail" type="button" data-trash-detail="${escapeText(item.id)}">查看</button><button class="button primary" type="button" data-trash-restore="${escapeText(item.id)}">恢复</button><span></span></div></article>`).join('') : '<div class="library-empty">垃圾桶是空的。</div>';
+        grid.querySelectorAll('[data-trash-detail]').forEach(item => item.addEventListener('click', () => window.openLibraryDetail?.(item.dataset.trashDetail)));
+        grid.querySelectorAll('[data-trash-restore]').forEach(item => item.addEventListener('click', () => restoreTrash(item.dataset.trashRestore)));
+      }
+      window.refreshTrash = loadTrash;
+      async function restoreTrash(id) {
+        trash.pending = id;
+        if (typeof authStatus === 'function' && !(await authStatus())) {
+          state.pendingAction = 'trash-disposition';
+          openModal('pin-modal');
+          return;
+        }
+        await postRestore();
+      }
+      async function postRestore() {
+        if (!trash.pending) return;
+        const response = await fetch('/api/studio/story-library/disposition', { method: 'POST', headers: {'Content-Type':'application/json','X-Roro-CSRF':state.csrf || ''}, body: JSON.stringify({story_id: trash.pending, action: 'restore'}) });
+        if (response.ok) {
+          trash.pending = null;
+          trash.open = false;
+          button.setAttribute('aria-pressed', 'false');
+          libraryState.filter = 'all';
+          document.getElementById('source-guide').hidden = false;
+          document.getElementById('library-source-summary').hidden = false;
+          document.getElementById('library-toolbar').hidden = false;
+          if (typeof window.showWorkbenchView === 'function') window.showWorkbenchView('candidates', { updateHash: true });
+          else window.location.hash = 'candidates';
+          await loadLibrary();
+          await loadTrash();
+        }
+      }
+      document.getElementById('pin-submit')?.addEventListener('click', () => { if (state.pendingAction === 'trash-disposition') setTimeout(() => { state.pendingAction = null; postRestore(); }, 120); });
+      button.addEventListener('click', () => { trash.open = !trash.open; button.setAttribute('aria-pressed', String(trash.open)); button.textContent = trash.open ? '返回备选故事' : '垃圾桶（0）'; if (typeof window.showWorkbenchView === 'function') window.showWorkbenchView('candidates', { updateHash: true }); if (trash.open) { libraryState.filter = 'discarded'; document.getElementById('source-guide').hidden = true; document.getElementById('library-source-summary').hidden = true; document.getElementById('library-toolbar').hidden = true; document.getElementById('library-kicker').textContent = 'RECENTLY DELETED'; document.getElementById('story-library-title').textContent = '最近删除'; document.getElementById('story-library-copy').textContent = '只保留最近删除的 6 个故事；恢复后会回到备选故事。'; loadTrash(); } else { libraryState.filter = 'all'; document.getElementById('source-guide').hidden = false; document.getElementById('library-source-summary').hidden = false; document.getElementById('library-toolbar').hidden = false; document.getElementById('library-kicker').textContent = 'STORY CANDIDATES'; document.getElementById('story-library-title').textContent = '挑选下一批绘本'; document.getElementById('story-library-copy').textContent = '这里只显示尚未加入制作、也未丢弃的完整故事。点击“加入制作”后会立即移入制作进度。'; document.getElementById('library-search').dispatchEvent(new Event('input')); loadLibrary().catch(() => {}); } });
+      loadTrash();
+    })();
+  </script>
+  <script>
+    (() => {
+      const viewLabels = { candidates: '备选', working: '制作中', review: '待审核', published: '已上架', unpublished: '已下架' };
+      const validViews = new Set(Object.keys(viewLabels));
+      const viewFromHash = () => validViews.has(location.hash.slice(1)) ? location.hash.slice(1) : '';
+      const preferredView = () => {
+        if (state.stories.some(story => story.review_state === 'ready_for_parent')) return 'review';
+        if (state.stories.some(story => story.workflow_state === 'production')) return 'working';
+        return 'candidates';
+      };
+      function renderShelfCards(shelfStatus) {
+        const query=$('search').value.trim().toLowerCase(); const items = state.stories.filter(story => story.published === true && story.shelf_status === shelfStatus && (!query || [story.title,story.theme,story.synopsis].join(' ').toLowerCase().includes(query)));
+        if (!items.length) {
+          $('story-grid').innerHTML = `<div class="empty">${query ? '没有找到匹配的绘本，请换个关键词。' : shelfStatus === 'published' ? '书架中暂无已上架绘本。' : '暂无已下架绘本。'}</div>`;
+          return;
+        }
+        $('story-grid').innerHTML = items.map(story => {
+          const hasCandidate = story.review_state !== 'published' && story.candidate_revision;
+          const badge = hasCandidate ? `<span class="status review">${story.review_state === 'ready_for_parent' ? '新版待审核' : '新版制作中'}</span>` : '';
+          const shelfButton = shelfStatus === 'published'
+            ? `<button class="button danger shelf-action" data-action="unpublish" data-id="${escapeHtml(story.id)}">下架</button>`
+            : `<button class="button primary shelf-action" data-action="publish" data-id="${escapeHtml(story.id)}">重新上架</button>`;
+          const preview = hasCandidate ? `<a class="button" href="/studio-preview/${encodeURIComponent(story.id)}">预览新版本</a>` : '<span class="action-placeholder" aria-hidden="true"></span>';
+          const shelfReason = shelfStatus === 'unpublished' ? `<div class="shelf-reason"><b>下架原因</b><span>${escapeHtml(story.shelf_reason || '未填写')}</span></div>` : '';
+          const storyLink = shelfStatus === 'published' ? `/player/${encodeURIComponent(story.id)}` : `/studio-preview/${encodeURIComponent(story.id)}`;
+          const storyLinkLabel = shelfStatus === 'published' ? '打开书架版本' : '预览当前版本';
+          return `<article class="story-card"><div class="card-main"><div class="cover">${story.cover_url ? `<img src="${escapeHtml(story.cover_url)}" alt="《${escapeHtml(story.title)}》封面">` : ''}</div><div class="card-copy"><div class="status-row"><span class="status">${shelfStatus === 'published' ? '已上架' : '已下架'}</span>${badge}<span class="theme">${escapeHtml(story.theme)}</span></div><h2>${escapeHtml(story.title)}</h2><p class="synopsis">${escapeHtml(story.synopsis || '暂无简介')}</p>${shelfReason}</div></div><div class="evidence"><span>${story.asset_counts?.page_images || 0}/${story.page_count} 页插图</span><span>${hasCandidate ? '有新版本' : '当前版本可用'}</span></div><div class="card-footer">${shelfButton}${preview}<a class="button" href="${storyLink}">${storyLinkLabel}</a></div></article>`;
+        }).join('');
+        document.querySelectorAll('.shelf-action').forEach(button => button.addEventListener('click', () => requestShelfAction(button.dataset.id, button.dataset.action)));
+      }
+      async function requestShelfAction(storyId, action) {
+        state.pendingShelf = { storyId, action };
+        if (await authStatus()) openShelfModal(storyId, action);
+        else { state.pendingAction = 'shelf'; openModal('pin-modal'); setTimeout(() => $('pin-input').focus(), 50); }
+      }
+      function openShelfModal(storyId, action) {
+        const story = state.stories.find(item => item.id === storyId);
+        state.pendingShelf = { storyId, action, releaseId: story?.shelf_status ? story.current_release_id : '' };
+        if (action === 'unpublish') {
+          $('unpublish-summary').textContent = `《${story?.title || ''}》下架后不会删除历史版本，制作中的候选也会保留。`;
+          $('unpublish-reason').value = story?.shelf_reason || '';
+          openModal('unpublish-modal');
+        } else submitShelfDecision('publish');
+      }
+      async function submitShelfDecision(action) {
+        const pending = state.pendingShelf;
+        if (!pending) return;
+        const reason = action === 'unpublish' ? $('unpublish-reason').value.trim() : '';
+        if (action === 'unpublish' && !reason) { toast('请填写下架原因。'); return; }
+        const button = action === 'unpublish' ? $('unpublish-submit') : document.querySelector(`.shelf-action[data-id="${CSS.escape(pending.storyId)}"]`);
+        if (button) button.disabled = true;
+        try {
+          const story = state.stories.find(item => item.id === pending.storyId);
+          const response = await fetch(`/api/studio/stories/${encodeURIComponent(pending.storyId)}/shelf`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Roro-CSRF': state.csrf}, body: JSON.stringify({ action, reason, release_id: story?.current_release_id || '' }) });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error?.message || '书架操作失败');
+          const nextShelfStatus = action === 'unpublish' ? 'unpublished' : 'published';
+          const nextReason = action === 'unpublish' ? reason : '';
+          state.stories = state.stories.map(item => item.id === pending.storyId ? { ...item, shelf_status: nextShelfStatus, shelf_reason: nextReason, shelf_updated_at: new Date().toISOString() } : item);
+          closeModals(); state.pendingShelf = null;
+          showWorkbenchView(nextShelfStatus, { updateHash: true });
+          toast(action === 'unpublish' ? '绘本已下架。' : '绘本已重新上架。');
+          try { await loadStories(); } catch { toast('状态已保存，但列表同步失败，请手动刷新。'); }
+        } catch (error) { toast(error.message); } finally { if (button) button.disabled = false; }
+      }
+      window.resumeShelfAction = () => {
+        const pending = state.pendingShelf;
+        if (pending && state.csrf) {
+          closeModals();
+          openShelfModal(pending.storyId, pending.action);
+        }
+      };
+      $('unpublish-submit').addEventListener('click', () => submitShelfDecision('unpublish'));
+      $('pin-submit').addEventListener('click', () => setTimeout(() => {
+        if (state.pendingAction === 'shelf' && state.pendingShelf && state.csrf) {
+          state.pendingAction = null;
+          closeModals();
+          openShelfModal(state.pendingShelf.storyId, state.pendingShelf.action);
+        }
+      }, 120));
+      const showWorkbenchView = (view, { updateHash = true } = {}) => {
+        const selectedView = validViews.has(view) ? view : 'candidates';
+        document.querySelectorAll('.workflow-tab').forEach(button => {
+          const active = button.dataset.view === selectedView;
+          button.classList.toggle('active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        const candidates = selectedView === 'candidates';
+        $('candidate-library').hidden = !candidates;
+        $('production-board').hidden = candidates;
+        if (candidates) {
+          state.filter = 'candidates';
+          $('story-library-title').textContent = '备选绘本';
+          $('story-library-copy').textContent = '从已写好的故事中选择，制作后进入制作中。';
+        } else {
+          state.filter = selectedView;
+          const copy = {
+            working: ['制作中', '查看当前进度和缺少的素材。'],
+            review: ['待审核', '完整候选在这里完成画面与旁白审核。'],
+            published: ['已上架', '查看已经发布到家庭书架的绘本版本。'],
+            unpublished: ['已下架', '隐藏在书架之外的绘本；历史版本和制作中的候选仍会保留。'],
+          }[selectedView];
+          $('board-title').textContent = copy[0];
+          $('board-copy').textContent = copy[1];
+          if (selectedView === 'published' || selectedView === 'unpublished') renderShelfCards(selectedView === 'published' ? 'published' : 'unpublished');
+          else renderCards();
+        }
+        window.refreshBatchApprovalButton?.();
+        if (updateHash && location.hash !== `#${selectedView}`) location.hash = selectedView;
+      };
+      window.showWorkbenchView = showWorkbenchView;
+      $('search').addEventListener('input',()=>{if(['published','unpublished'].includes(state.filter))renderShelfCards(state.filter)});
+      document.querySelectorAll('.workflow-tab').forEach(button => button.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        showWorkbenchView(button.dataset.view);
+      }, true));
+      window.addEventListener('hashchange', () => showWorkbenchView(viewFromHash() || preferredView(), { updateHash: false }));
+      const priorRenderDecisionBar = window.renderDecisionBar;
+      window.renderDecisionBar = function() {
+        priorRenderDecisionBar();
+        if (!state.selected) return;
+        if (state.selected.review_state === 'ready_for_parent') {
+          $('decision-title').textContent = '确认这个版本';
+          $('decision-subtitle').textContent = '确认后会更新书架，退回后继续修改。';
+        } else if (state.selected.review_state === 'changes_requested') {
+          $('decision-title').textContent = '需要修改';
+        } else if (state.selected.review_state === 'published') {
+          $('decision-title').textContent = '已上架';
+        }
+      };
+      const priorRenderReviewMode = window.renderReviewMode;
+      window.renderReviewMode = function() {
+        priorRenderReviewMode();
+        $('review-mode-copy').textContent = state.reviewMode === 'development' ? '本地家庭制作空间 · 开发期' : '家长审核模式';
+        $('review-mode-footer').textContent = state.reviewMode === 'development' ? '家庭专属制作空间 · 开发期' : '家庭专属制作空间 · 家长审核模式';
+      };
+      const initializeView = () => {
+        if (!state.storiesLoaded) return;
+        showWorkbenchView(viewFromHash() || preferredView(), { updateHash: false });
+        window.renderReviewMode();
+      };
+      window.initializeWorkbenchView=initializeView;
+      initializeView();
+    })();
+  </script>
+  <script>
+    (() => {
+      const readyForBatchApproval = () => state.stories.filter(story => story.review_state === 'ready_for_parent' && story.candidate_revision && story.package_digest);
+      const renderBatchApprovalSummary = items => {
+        $('batch-approve-summary').innerHTML = `<b>共 ${items.length} 本绘本</b><br>${items.map(story => escapeHtml(story.title)).join('、')}<br><span>每本都会绑定当前候选版本和内容摘要；提交失败的绘本会保留在待审核列表。</span>`;
+      };
+      const openBatchApprovalModal = () => {
+        const items = state.pendingBatch || readyForBatchApproval();
+        if (!items.length) { toast('当前没有可以通过的待审核绘本。'); return; }
+        state.pendingBatch = items.map(story => ({ id: story.id, title: story.title, candidate_revision: story.candidate_revision, package_digest: story.package_digest }));
+        renderBatchApprovalSummary(state.pendingBatch);
+        $('batch-approve-submit').disabled = false;
+        openModal('batch-approve-modal');
+      };
+      const requestBatchApproval = async () => {
+        const items = readyForBatchApproval();
+        if (!items.length) { toast('当前没有可以通过的待审核绘本。'); return; }
+        state.pendingBatch = items;
+        state.pendingAction = 'approve-all';
+        if (await authStatus()) openBatchApprovalModal();
+        else { openModal('pin-modal'); setTimeout(() => $('pin-input').focus(), 50); }
+      };
+      window.resumeBatchApproval = () => { closeModals(); openBatchApprovalModal(); };
+      const submitBatchApproval = async () => {
+        const items = state.pendingBatch || [];
+        if (!items.length) { closeModals(); toast('待审核列表已变化，请刷新后重试。'); return; }
+        const button = $('batch-approve-submit');
+        button.disabled = true;
+        const failures = [];
+        let approved = 0;
+        for (const story of items) {
+          try {
+            const response = await fetch(`/api/studio/stories/${encodeURIComponent(story.id)}/decision`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-Roro-CSRF': state.csrf },
+              body: JSON.stringify({ decision: 'approved', candidate_revision: story.candidate_revision, package_digest: story.package_digest, request_id: makeRequestId() }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error?.message || '提交失败');
+            approved += 1;
+          } catch (error) { failures.push(`${story.title}：${error.message}`); }
+        }
+        closeModals();
+        state.pendingBatch = null;
+        state.pendingAction = null;
+        try { await loadStories(); } catch { /* keep the persisted result visible on the next refresh */ }
+        if (failures.length) toast(`已通过 ${approved} 本，${failures.length} 本未完成：${failures.join('；')}`);
+        else toast(`已全部通过 ${approved} 本待审核绘本，并更新书架。`);
+        button.disabled = false;
+      };
+      $('approve-all-review').addEventListener('click', requestBatchApproval);
+      $('batch-approve-submit').addEventListener('click', submitBatchApproval);
+      const priorShowWorkbenchView = window.showWorkbenchView;
+      window.showWorkbenchView = (view, options) => {
+        const result = priorShowWorkbenchView(view, options);
+        $('approve-all-review').hidden = view !== 'review' || !readyForBatchApproval().length;
+        return result;
+      };
+      window.refreshBatchApprovalButton = () => { $('approve-all-review').hidden = state.filter !== 'review' || !readyForBatchApproval().length; };
+      window.refreshBatchApprovalButton();
+    })();
+  </script>
+  <script>
+    $('refresh-workbench').addEventListener('click',async()=>{
+      const button=$('refresh-workbench');button.disabled=true;button.textContent='正在刷新…';
+      $('workbench-sync').textContent='正在读取最新进度…';
+      try{const results=await Promise.allSettled([loadStories(),window.reloadStoryLibrary()]);
+        $('workbench-sync').textContent=results.some(result=>result.status==='rejected')?'部分进度未能更新，请检查服务后重试。':'进度已更新 · '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+      }finally{button.disabled=false;button.textContent='刷新进度'}
+    });
+  </script>
+</body>
+</html>

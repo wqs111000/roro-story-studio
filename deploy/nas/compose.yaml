@@ -1,0 +1,54 @@
+services:
+  story-service:
+    image: "roro-story-runtime:py312-reportlab4-v1"
+    restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-10}"
+    ports:
+      - "8877:8877"
+    environment:
+      RORO_SYNC_SOURCE_URL: "${RORO_SYNC_SOURCE_URL:-}"
+    volumes:
+      - type: bind
+        source: ./app/service
+        target: /app/service
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./app/scripts
+        target: /app/scripts
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./data/approved
+        target: /data/approved
+        read_only: false
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./cache/exports
+        target: /data/exports
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./service-data
+        target: /app/service/data
+        read_only: false
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./character-assets
+        target: /app/service/assets/characters
+        read_only: false
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./sync-state
+        target: /runtime
+        read_only: false
+        bind: {create_host_path: false}
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    command: [--host, "0.0.0.0", --port, "8877", --directory, /data/approved,
+              --review-auth-mode, development, --display-only]
+    healthcheck:
+      test: [CMD, python, -c, "import json,urllib.request; d=json.load(urllib.request.urlopen('http://127.0.0.1:8877/health',timeout=2)); assert d['status']=='ok' and d['display_only'] is True"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

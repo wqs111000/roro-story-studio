@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roro.local/schemas/story.schema.json",
+  "title": "Youyou Roro Story Draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "story_id", "title", "status", "source_mode", "audience", "theme", "synopsis", "pages", "parent_review"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "story_id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "status": { "enum": ["draft", "needs_revision", "approved"] },
+    "source_mode": { "enum": ["daily_life", "original_adventure", "classic_motif"] },
+    "audience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["age_years", "bedtime"],
+      "properties": {
+        "age_years": { "const": 4 },
+        "bedtime": { "type": "boolean" }
+      }
+    },
+    "theme": { "type": "string", "minLength": 1, "maxLength": 30 },
+    "knowledge_seed": { "type": ["string", "null"], "maxLength": 80 },
+    "synopsis": { "type": "string", "minLength": 1, "maxLength": 240 },
+    "refrain": { "type": ["string", "null"], "maxLength": 30 },
+    "pages": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["page", "scene", "narration", "emotion", "visual_prompt"],
+        "properties": {
+          "page": { "type": "integer", "minimum": 1, "maximum": 6 },
+          "scene": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "narration": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "dialogue": {
+            "type": "array",
+            "maxItems": 4,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["speaker", "text"],
+              "properties": {
+                "speaker": { "type": "string", "minLength": 1, "maxLength": 20 },
+                "text": { "type": "string", "minLength": 1, "maxLength": 120 }
+              }
+            }
+          },
+          "emotion": { "enum": ["calm", "curious", "happy", "gentle", "concerned", "proud", "sleepy"] },
+          "interaction": { "type": ["string", "null"], "maxLength": 100 },
+          "visual_prompt": { "type": "string", "minLength": 1, "maxLength": 800 }
+        }
+      }
+    },
+    "parent_note": { "type": ["string", "null"], "maxLength": 300 },
+    "parent_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approved", "notes"],
+      "properties": {
+        "approved": { "type": "boolean" },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "approved" } } },
+      "then": { "properties": { "parent_review": { "properties": { "approved": { "const": true } } } } },
+      "else": { "properties": { "parent_review": { "properties": { "approved": { "const": false } } } } }
+    }
+  ]
+}
